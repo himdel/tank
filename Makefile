@@ -68,8 +68,18 @@ lightning.o: lightning.c lightning.h paint.h general.h options.h
 weapons.o: weapons.c weapons.h paint.h general.h options.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
+
+let_fnt: let_fnt.c let_fnt.h
+	$(CC) -o $@ $< $(CFLAGS) -std=c99
+
+let_fnt.xpm: let_fnt
+	./$< > $@
+
+let_fnt.png: let_fnt.xpm
+	convert $< $@
+
 clean:
-	rm -f tank tankSDL opt_save opt_load *.o *~
+	rm -f tank tankSDL opt_save opt_load *.o *~ let_fnt.png let_fnt.xpm let_fnt
 
 
 tank-$(VERS).tar.gz:
