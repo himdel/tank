@@ -30,7 +30,6 @@ struct reps
   } *rb;
   
 
-int him_dirmode = 1;
 int sx = 0, sy = 0, sc = 0, sl = 0, raw = 0;
 SDL_Surface **layers;
 SDL_Surface *scr;
@@ -354,9 +353,6 @@ him_pixel (x, y, c, l)
     SDL_UnlockSurface (*(layers + l));
 
   torep (x, y);
- 
-  if (him_dirmode)
-    him_repaint ();
  
   return 0;
 }

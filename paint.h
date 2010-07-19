@@ -4,8 +4,6 @@
 
 #include "vgakeyboard.h"
 
-extern int him_dirmode;
-
 /* screenx, screeny, colors, layers, rawkey (bool) */
 int him_init (int, int, int, int, int);
 void him_destroy ();
