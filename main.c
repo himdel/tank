@@ -1,10 +1,3 @@
-/*
-  tank - a tank shooting game
-  version 0.8a
-  himdel@seznam.cz
- */
-
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -170,18 +163,18 @@ main (void)
   struct playa p[2];
   int mnu = 1;
 
-  printf ("tank-0.8a\nMartin HRADIL <himdel@seznam.cz>\nhttp://himdel.wz.cz\n\n");  /* printf version */
+  printf ("tank\nMartin HRADIL\nhttp://github.com/himdel/tank\n\n");
   opt_init ();  /* set or load options */
-  
+
   if (him_init (SCR_X, SCR_Y, SCR_C, 8, 1) == -1)   /* initialize graphics || die */
     exit (1);
 
   atexit (him_destroy);
-   
+
   letters_init (NULL);  /* initialize text-writing routines */
 
   srand (time (NULL));
-  
+
   cmps.p = -1;
   cmps.s = (struct compsht **) NULL;
 
@@ -221,14 +214,13 @@ main (void)
       if (!him_is_SDL)
         him_dirmode = 1;
       
-      paint_stars (opt_num_stars);   /* paints stars */
-      gen_paint_land/*2*/ ();   /* generates and paints land */
-      water_land (lmhs);   /* fill valleys with water */
-      gen_paint_clouds (nc);  /* generates and paints clouds */
-  //    bns_gen (lmhs);   /* puts in bonuses */  
+      paint_stars(opt_num_stars);   /* paints stars */
+      gen_paint_land();   /* generates and paints land */
+      water_land(lmhs);   /* fill valleys with water */
+      gen_paint_clouds(nc);  /* generates and paints clouds */
   
-      p[0].x = (rand () % 288) + 16;       /* generates positions */
-      p[1].x = (rand () % 288) + 336;
+      p[0].x = (rand() % 288) + 16;       /* generates positions */
+      p[1].x = (rand() % 288) + 336;
       p[0].a = 32; p[1].a = 96;    /* sets angles, forces and lives */
       p[0].p = p[1].p = 127;
       p[0].l = p[1].l = opt_ilives;
