@@ -1,12 +1,9 @@
 CC = gcc
-CFLAGS = -pedantic -Wall
+CFLAGS = -pedantic -Wall -std=c99
 LIBS = -lm
 SDLLIBS = `sdl-config --libs` -lSDL_image
-SDLCFLAGS = `sdl-config --cflags` -ansi
-PERL = perl
-VERS = 0.8a
+SDLCFLAGS = `sdl-config --cflags`
 
-SRC = *.c *.h README INSTALL TODO ChangeLog Makefile icon.bmp *.png scripts/*.pl
 OBJS = general.o letters.o options.o water.o bonus.o menu.o gui.o weapons.o lightning.o shots.o expls.o
 
 
@@ -46,12 +43,10 @@ menu.o: menu.c menu.h paint.h options.h letters.h general.h gui.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 opt_save: options.h
-	$(PERL) scripts/gensave.pl < $< > $@
+	perl scripts/gensave.pl < $< > $@
 
 opt_load: options.h
-	$(PERL) scripts/genload.pl < $< > $@
-	echo "      else if (strlen (fn) > 1)" >> $@
-	echo "        printf (\"tank: Unknown option %s -IGNORING\n\", fn);" >> $@
+	perl scripts/genload.pl < $< > $@
 
 gui.o: gui.c gui.h paint.h letters.h general.h
 	$(CC) -o $@ -c $< $(CFLAGS)
@@ -70,7 +65,7 @@ weapons.o: weapons.c weapons.h paint.h general.h options.h
 
 
 let_fnt: let_fnt.c let_fnt.h
-	$(CC) -o $@ $< $(CFLAGS) -std=c99
+	$(CC) -o $@ $< $(CFLAGS)
 
 let_fnt.xpm: let_fnt
 	./$< > $@
@@ -80,10 +75,3 @@ let_fnt.png: let_fnt.xpm
 
 clean:
 	rm -f tank tankSDL opt_save opt_load *.o *~ let_fnt.png let_fnt.xpm let_fnt
-
-
-tank-$(VERS).tar.gz:
-	@ls $(SRC) | sed s:^:tank-$(VERS)/: >MANIFEST
-	@(cd ..; ln -s tank tank-$(VERS))
-	(cd ..; tar -cvzf tank/tank-$(VERS).tar.gz `cat tank/MANIFEST`)
-	@(cd ..; rm tank-$(VERS))
