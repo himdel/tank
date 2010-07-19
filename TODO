@@ -1,20 +1,15 @@
- tank - a tank game
+* speed based on time
+* use energy for shields too
+* split main.c
+* sane keybindings
 
-TODOs:
+* fix water slowing down stuff even if not there
+* when lightning kills someone completely, it's not freed properly
 
-  TODO speed based on time
-
-  TODO lives
-  TODO split main.c - again - explosions, shots, lightnings
-  TODO look at water - *S* *L* *O* *W* *S*  *  *D* *O* *W* *N* - even when not doing anything
-  BUG lightning kdyz zabije uplne (na lives=0) tak v pristi hre pokracuje existovat
-
-  TODO rewater aj nahoru kdyz landslide = 0 (&& rewater properly)
-  TODO wind & moving clouds
-  TODO on fire ve water odhodit vzad
-  TODO 1vNET (SDL_net)
-  TODO 1vPC
-
-  TODO mb crater border up a bit (dep on weapon)
-  TODO lightning storm sometimes
-  TODO rain -> floods
+* rewater properly, respect landslides
+* wind & moving clouds
+* when in water, fire should push tank in opposite direction
+* net game
+* ai
+* lightning storm sometimes
+* rain -> floods
