@@ -1,0 +1,32 @@
+ tank - a tank game
+ himdel@seznam.cz
+
+TODOs:
+
+  TODO adapt based on time
+  
+  TODO gui.[ch]
+  TODO life (neuplnej zasah te nezabije, jen poskodi, pad treba taky)
+  TODO split main.c - again - explosions, shots, lightnings
+  TODO look at water - *S* *L* *O* *W* *S*  *  *D* *O* *W* *N* - even when not doing anything
+  BUG lightning kdyz zabije uplne (na lives=0) tak v pristi hre pokracuje existovat
+  
+  TODO rewater aj nahoru kdyz landslide = 0 (&& rewater properly)
+  TODO wind & moving clouds
+  TODO on fire ve water odhodit vzad
+  TODO 1vNET (SDL_net)
+  TODO 1vPC
+
+  TODO weapons
+  TODO bonuses lip
+  TODO mb crater border up a bit (dep on weapon)
+  TODO meteorites
+  TODO sound
+  TODO Faydom (wormne se pres auroru a zacne kostit)
+  TODO lightning storm sometimes
+  TODO hidden areas in the air - invisible, with small grav/antigrav field - with powerful bonus or just swap vx with vy
+  TODO make it real - sun and moon podle aktualniho casu a pozice nastavitelne v menu
+  TODO configure, ...
+  TODO console
+  TODO rain -> floods
+  TODO paint.c - usr zgv-5.7/src/readpng.c to display PNGs in VGA version too

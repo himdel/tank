@@ -1,0 +1,37 @@
+2005-08-19 21:01:43:	himdel
+	* land slides no longer buggy (used to duplicate land)
+	* land is heavier than water
+	* generating terrain notice
+	* weapon energy
+	@ dostuff rewritten to use struct Tasks * table and run things every # ms
+
+2005-08-01 10:52:47:	himdel
+	* land slides sidewise too now
+	@ added unsigned int tm into strcut lndpts
+	@ added him_getnow() into paint (in SDL uses GetTicks, in vga uses gettimeofday(2))
+	* land is more random after explosion
+
+
+0.6 -> 0.7	(07/14/2004)
+
+main - eliminated the "explosion on the border of screen hangs up the
+       whole game" bug
+     - added real-looking (almost) lightning
+     - land slides down
+
+water - water behaves (ALMOST - see README and grep BUG) properly now
+
+paint - water and clouds are transparent (~50%) when there's sun or moon behind
+
+paintSDL - uses SDL_Surfaces for layers
+    
+
+
+0.5 -> 0.6	(once)
+
+paint - added him_ufullcircler
+main - realtime shooting (, changed keys, multiple explosions)
+
+moved raw keyboard to paint*
+
+paintSDL - created => tankSDL
