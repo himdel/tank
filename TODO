@@ -2,6 +2,9 @@
 * use energy for shields too
 * split main.c
 * sane keybindings
+* win support with linux mingw32
+
+* get rid of vgakeyboard.h and various sdl wrappers in paint
 
 * fix water slowing down stuff even if not there
 * when lightning kills someone completely, it's not freed properly
