@@ -5,8 +5,6 @@
 -      while ((p[0].l > 0) && (p[1].l > 0))   /* main loop */
 -        {
 -          checkkeys (p);
--          if (net)
--            checknet (p, net - 1);
 -          dostuff (p);
 +		while ((p[0].l > 0) && (p[1].l > 0)) {	/* main loop */ 
 +			unsigned int now;
@@ -25,24 +23,11 @@
 +			}
 +			
 +			checkkeys ();
-+			checknet ();
 +			
            showebar (p[0].e, p[1].e);
            him_repaint ();
          }  
-@@ -254,8 +253,7 @@
-       else
-         printf ("\nplayer 0 wins!\n");
-   
--      if (cmps.s != NULL)
--        {
-+		if (cmps.s != NULL) {
-           if (cmps.s[0] != NULL)
-             free (cmps.s[0]);
-           if (cmps.s[1] != NULL)
 @@ -265,22 +263,21 @@
-           free (cmps.s);
-           cmps.p = -1;
          }
        water_destroy ();
 -      while ((shoo = freeso (shoo)) != NULL);
@@ -114,219 +99,6 @@
    sprintf (s, "p1: angle = %3d, force = %3d, lives = %d", p[1].a, p[1].p, p[1].l);
 -  wrtwrd (0, 464, s, 0, 15, 7);
 +  wrtwrd (0, 464, s, 0, opt_col_p2, 7);
- }
- 
- 
- void
--checkkeys (p)
--    struct playa *p;
-+checkkeys (void)
- {
-   int n = 0;
-   static int ps = 0, pe = 0;
-  
-   him_keyupd (); 
-   
--  if (him_keypr (SCANCODE_GRAVE))
--    {}
-- 
--  if (menu_p0 == 0)
--    {
--      if (him_keypr (SCANCODE_Q))
-+  if (menu_p0 == 0)	/* p0 : rfdgTAB */
-         {
--          p[0].a = (p[0].a + 1) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_R))
--       {
--          p[0].a = (p[0].a + 255) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_E))
--        {
--          p[0].p = (p[0].p + 1) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_W))
--        {
--          p[0].p = (p[0].p + 255) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_A))
-+      if (him_keypr (SCANCODE_D))
-         {
-           p[0].a = (p[0].a + 4) % 256;
-           n++;
-         }
--      if (him_keypr (SCANCODE_F))
-+      if (him_keypr (SCANCODE_G))
-        {
-           p[0].a = (p[0].a + 252) % 256;
-           n++;
-         }
--      if (him_keypr (SCANCODE_D))
-+      if (him_keypr (SCANCODE_R))
-         {
-           p[0].p = (p[0].p + 4) % 256;
-           n++;
-         }
--      if (him_keypr (SCANCODE_S))
-+      if (him_keypr (SCANCODE_F))
-         {
-           p[0].p = (p[0].p + 252) % 256;
-           n++;
-         }
--      if (him_keypr (SCANCODE_Z))
--        {
--          p[0].a = (p[0].a + 16) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_V))
--       {
--          p[0].a = (p[0].a + 240) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_C))
--        {
--          p[0].p = (p[0].p + 16) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_X))
--        {
--          p[0].p = (p[0].p + 240) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_T))
--        {
--          p[0].a = (128 - p[0].a);
--          n++;
--        }
-     }
-   
--  if (menu_p1 == 0)
-+  if (menu_p1 == 0)	/* p1 ^v<>0 */
-     {
--      if (him_keypr (SCANCODE_U))
--        {
--          p[1].a = (p[1].a + 1) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_P))
--       {
--          p[1].a = (p[1].a + 255) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_O))
--        {
--          p[1].p = (p[1].p + 1) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_I))
--        {
--          p[1].p = (p[1].p + 255) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_H))
-+      if (him_keypr (SCANCODE_CURSORBLOCKLEFT))
-         {
-           p[1].a = (p[1].a + 4) % 256;
-           n++;
-         }
--      if (him_keypr (SCANCODE_L))
-+      if (him_keypr (SCANCODE_CURSORBLOCKRIGHT))
-        {
-           p[1].a = (p[1].a + 252) % 256;
-           n++;
-         }
--      if (him_keypr (SCANCODE_K))
-+      if (him_keypr (SCANCODE_CURSORBLOCKUP))
-         {
-           p[1].p = (p[1].p + 4) % 256;
-           n++;
-         }
--      if (him_keypr (SCANCODE_J))
-+      if (him_keypr (SCANCODE_CURSORBLOCKDOWN))
-         {
-           p[1].p = (p[1].p + 252) % 256;
-           n++;
-         }
--      if (him_keypr (SCANCODE_B))
--        {
--          p[1].a = (p[1].a + 16) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_COMMA))
--        {
--          p[1].a = (p[1].a + 240) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_M))
--        {
--          p[1].p = (p[1].p + 16) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_N))
--        {
--          p[1].p = (p[1].p + 240) % 256;
--          n++;
--        }
--      if (him_keypr (SCANCODE_Y))
--        {
--          p[1].a = (128 - p[1].a);
--          n++;
--        }
-     }
-       
-   if (n)
-@@ -615,35 +519,26 @@
-   if (him_keypr (SCANCODE_ESCAPE))
-     p[0].l = p[1].l = 0;
- 
--  if ((menu_p1 == 0) && (him_keypr (SCANCODE_ENTER)))
-+  if ((menu_p1 == 0) && (him_keypr (SCANCODE_KEYPAD0)))
-     pe++;
-   else
-     pe = 0;
- 
--  if ((menu_p0 == 0) && (him_keypr (SCANCODE_SPACE)))
-+  if ((menu_p0 == 0) && (him_keypr (SCANCODE_TAB)))
-     ps++;
-   else
-     ps = 0;
-         
-   if (pe == 1)
--    {
--      fire (p, 1);
--      if (menu_p0 > 1)
--        compfir (p, 0);
--    }
-+      fire (1);
-  
-   if (ps == 1)
--    {
--      fire (p, 0);
--      if (menu_p1 > 1)
--        compfir (p, 1);
--    }
-+      fire (0);
- }
- 
- 
- struct shootp *
--fire (p, n)
--    struct playa *p;
-+fire (n)
-     int n;
- {
-   float vx, vy, bx, by;  
-@@ -677,7 +572,8 @@
-   foo->who = n;
-   foo->compid = -1;
- 
--  return (shoo = foo);
-+  {
-+return (shoo = foo);}
  }
  
  
@@ -471,36 +243,12 @@
  int
  bezier (x, p, px, py, t)
      int x, p, t;  /* x = 0..t; p = 1..MAXINT (num points) */
-@@ -1514,8 +1327,7 @@
- 
- 
- void
--compfir (p, pl)
--    struct playa *p;
-+compfir (pl)
-     int pl;
- {
-   struct compsht *nw;
 @@ -1549,7 +1362,7 @@
-   cmps.s[1] = cmps.s[0];
-   cmps.s[0] = nw;
  
 -  fire (p, pl);
 +  fire (pl);
-   shoo->compid = id++;
  }
  
-@@ -1569,9 +1382,7 @@
- 
- 
- void
--checknet (p, pl)
--    struct playa *p;
--    int pl;
-+checknet (void)
- {
-   /* TODO all */
- }
 @@ -1592,23 +1403,57 @@
  		}
  		y = (rand () % 384) + 64;
