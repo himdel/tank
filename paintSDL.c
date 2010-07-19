@@ -62,7 +62,7 @@ him_init (x, y, c, l, rw)
 
 #ifdef TANK
   SDL_WM_SetCaption ("tank", "tank");
-  SDL_WM_SetIcon (SDL_LoadBMP ("icon.bmp"), NULL);
+  SDL_WM_SetIcon (SDL_LoadBMP ("img/icon.bmp"), NULL);
 #endif /* TANK */
 
   scr = SDL_SetVideoMode (x, y, 8, SDL_SWSURFACE);
@@ -188,14 +188,14 @@ him_init (x, y, c, l, rw)
     }
 
   printf ("him_init ... [  %c[32mOK%c[0m  ]\n", 27, 27);
-  printf ("\nUsing libraries SDL, SDL_image and SDL_net, all licensed under LGPL and\n");
+  printf ("\nUsing libraries SDL and SDL_image, licensed under LGPL and\n");
   printf ("downloadable from http://www.libsdl.org/.\n\n");
-  
+
 #ifdef TANK
-  him_showimg ("intro.png");
+  him_showimg ("img/intro.png");
   sleep (1);
 #endif /* TANK */  
-  
+
   return 0;
 }
 

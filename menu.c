@@ -31,7 +31,7 @@ startmenu (ait)
   
   him_putlock ();
   
-  if (him_showimg ("menu.png") >= 0)
+  if (him_showimg ("img/menu.png") >= 0)
     {
       int x, y;
       
@@ -197,7 +197,7 @@ mnu_network ()
   int x, y;
   
   him_putlock ();
-  him_showimg ("netgame.png");
+  him_showimg ("img/netgame.png");
       
   for (x = 200; x < 440; x++)
     for (y = 212; y < 272; y++)
