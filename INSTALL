@@ -2,4 +2,10 @@ Well, if you're lucky, just make it (you can use target tank for vga
 version and tankSDL for SDL version) and then run from the tank
 directory. If not, change something, make it work and send me a patch.
 
+So:
+
+make tank	- vga version
+make tankSDL	- sdl version
+make		- both
+
 Thanks, Himdel
