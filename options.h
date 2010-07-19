@@ -2,7 +2,6 @@
  options.h - options for tank
  */
 
-
 extern int opt_lndpts;
 extern int opt_jmp;
 extern int opt_mirror;
@@ -32,5 +31,5 @@ extern int opt_iwe;	/* initial weapon energy */
 extern int opt_mwe;	/* max weap energy */
 extern int opt_rwe;	/* recharge weap energy per sec */
 
-void opt_init (void);
-void opt_save (void);
+extern void opt_init();
+extern void opt_save();
