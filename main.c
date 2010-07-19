@@ -95,7 +95,6 @@ void show_arrows (int, int);
 void showscore (struct playa *);
 void checkkeys (struct playa *);
 struct shootp *fire (struct playa *, int);
-void dostuff (struct playa *);
 void do_we (struct playa *);
 void do_fire (struct playa *);
 void do_expl (struct playa *);
@@ -141,87 +140,93 @@ struct Tasks {
 int
 main (void)
 {
-  struct playa p[2];
+	struct playa p[2];
 
-  printf ("tank\nMartin HRADIL\nhttp://github.com/himdel/tank\n\n");
-  opt_init ();  /* set or load options */
+	printf ("tank\nMartin HRADIL\nhttp://github.com/himdel/tank\n\n");
+	opt_init ();  /* set or load options */
 
-  if (him_init (SCR_X, SCR_Y, SCR_C, 8, 1) == -1)   /* initialize graphics || die */
-    exit (1);
+	if (him_init (SCR_X, SCR_Y, SCR_C, 8, 1) == -1)   /* initialize graphics || die */
+	exit (1);
 
-  atexit (him_destroy);
+	atexit (him_destroy);
 
-  letters_init (NULL);  /* initialize text-writing routines */
+	letters_init (NULL);  /* initialize text-writing routines */
 
-  srand (time (NULL));
+	srand (time (NULL));
 
-  him_clrscr ();
-  water_init ();
+	him_clrscr ();
+	water_init ();
 
-  nc = (rand () % 6) + 2;
-  c = (struct spos *) calloc (nc, sizeof (struct spos));
+	nc = (rand () % 6) + 2;
+	c = (struct spos *) calloc (nc, sizeof (struct spos));
 
-  expb = (struct expl *) NULL;
-  shoo = (struct shootp *) NULL;
-  lndpt = (struct lndpts *) NULL;
+	expb = (struct expl *) NULL;
+	shoo = (struct shootp *) NULL;
+	lndpt = (struct lndpts *) NULL;
 
-  wrtwrd (247, 232, "GENERATING TERRAIN", 12, 0, 7);
-  him_repaint ();
+	wrtwrd (247, 232, "GENERATING TERRAIN", 12, 0, 7);
+	him_repaint ();
 
-  paint_stars(opt_num_stars);   /* paints stars */
-  gen_paint_land();   /* generates and paints land */
-  water_land(lmhs);   /* fill valleys with water */
-  gen_paint_clouds(nc);  /* generates and paints clouds */
+	paint_stars(opt_num_stars);   /* paints stars */
+	gen_paint_land();   /* generates and paints land */
+	water_land(lmhs);   /* fill valleys with water */
+	gen_paint_clouds(nc);  /* generates and paints clouds */
 
-  p[0].x = (rand() % 288) + 16;       /* generates positions */
-  p[1].x = (rand() % 288) + 336;
-  p[0].a = 32; p[1].a = 96;    /* sets angles, forces and lives */
-  p[0].p = p[1].p = 127;
-  p[0].l = p[1].l = opt_ilives;
-  p[0].e = p[1].e = opt_iwe;
+	p[0].x = (rand() % 288) + 16;       /* generates positions */
+	p[1].x = (rand() % 288) + 336;
+	p[0].a = 32; p[1].a = 96;    /* sets angles, forces and lives */
+	p[0].p = p[1].p = 127;
+	p[0].l = p[1].l = opt_ilives;
+	p[0].e = p[1].e = opt_iwe;
 
-  paint_tanx (p[0].x, p[0].a, p[1].x, p[1].a);   /* paints tanks */
+	paint_tanx (p[0].x, p[0].a, p[1].x, p[1].a);   /* paints tanks */
 
-  show_arrows (p[0].x, p[1].x);
-  showscore (p);
+	show_arrows (p[0].x, p[1].x);
+	showscore (p);
 
-  him_dirmode = 0;
+	wrtwrd (247, 232, "GENERATING TERRAIN", -1, -1, 7);
+	him_repaint ();
 
-  wrtwrd (247, 232, "GENERATING TERRAIN", -1, -1, 7);
-  him_repaint ();
+	while ((p[0].l > 0) && (p[1].l > 0)) {   /* main loop */
+		unsigned int now = him_getnow();
+		struct Tasks *t = tsk;
 
-  while ((p[0].l > 0) && (p[1].l > 0))   /* main loop */
-    {
-      checkkeys (p);
-      dostuff (p);
-      showebar (p[0].e, p[1].e);
-      him_repaint ();
-    }
+		while ((t != NULL) && (t->ms != 0)) {
+			if (t->last + t->ms <= now) {
+				t->func(p);
+				t->last = now;
+			}
+			t++;
+		}
 
-  if ((p[0].l <= 0) && (p[1].l <= 0))
-    printf ("\ngame quit\n");
-  else if (p[0].l <= 0)
-    printf ("\nplayer 1 wins!\n");
-  else
-    printf ("\nplayer 0 wins!\n");
+		checkkeys (p);
+		showebar (p[0].e, p[1].e);
+		him_repaint ();
+	}
 
-  water_destroy ();
-  while ((shoo = freeso (shoo)) != NULL);
-  while (expb != NULL)
-    {
-      struct expl *ex;
-      ex = expb;
-      expb = expb->nxt;
-      free (ex);
-    }
-  free (c);
+	if ((p[0].l <= 0) && (p[1].l <= 0))
+		printf ("\ngame quit\n");
+	else if (p[0].l <= 0)
+		printf ("\nplayer 1 wins!\n");
+	else
+		printf ("\nplayer 0 wins!\n");
 
-  letters_destroy ();   /* free font */
-  him_destroy ();       /* free graphics */
+	water_destroy ();
+	while ((shoo = freeso (shoo)) != NULL)
+		;
+	while (expb != NULL) {
+		struct expl *ex;
+		ex = expb;
+		expb = expb->nxt;
+		free (ex);
+	}
+	free (c);
 
-  exit (0);   /* die */
+	letters_destroy ();   /* free font */
+	him_destroy ();       /* free graphics */
+
+	exit (0);   /* die */
 }
-
 
 
 
@@ -317,39 +322,39 @@ paint_tanx (x1, a1, x2, a2)
 {
   static int ox1 = ~0, oa1 = ~0, ox2 = ~0, oa2 = ~0, oy1, oy2;
   int y1, y2;
-  
+
   y1 = (getwl (x1) ? min(lmhs[x1] - 8, getwl (x1)) : (lmhs[x1] - 8));
   y2 = (getwl (x2) ? min(lmhs[x2] - 8, getwl (x2)) : (lmhs[x2] - 8));
 
   if ((ox1 != ~0) && ((ox1 != x1) || (oy1 != y1)))
-    him_box (ox1 - 16, oy1 - 16, ox1 + 16, oy1 + 16, -1, 5);  
+    him_box (ox1 - 32, oy1 - 32, ox1 + 32, oy1 + 32, -1, 5);
 
   if ((ox2 != ~0) && ((ox2 != x2) || (oy2 != y2)))
-    him_box (ox2 - 16, oy2 - 16, ox2 + 16, oy2 + 16, -1, 5);  
-  
+    him_box (ox2 - 32, oy2 - 32, ox2 + 32, oy2 + 32, -1, 5);
+
   if (oa1 != a1)
     {
       him_line (ox1 + (cos (oa1 * PI / 128) * 8), oy1 - (sin (oa1 * PI / 128) * 8), ox1 + (cos (oa1 * PI / 128) * 15), oy1 - (sin (oa1 * PI / 128) * 15), -1, 5);
       him_line (x1 + (cos (a1 * PI / 128) * 8), y1 - (sin (a1 * PI / 128) * 8), x1 + (cos (a1 * PI / 128) * 15), y1 - (sin (a1 * PI / 128) * 15), opt_col_p1, 5);
     }
- 
+
   if (oa2 != a2)
     {
       him_line (ox2 + (cos (oa2 * PI / 128) * 8), oy2 - (sin (oa2 * PI / 128) * 8), ox2 + (cos (oa2 * PI / 128) * 15), oy2 - (sin (oa2 * PI / 128) * 15), -1, 5);
       him_line (x2 + (cos (a2 * PI / 128) * 8), y2 - (sin (a2 * PI / 128) * 8), x2 + (cos (a2 * PI / 128) * 15), y2 - (sin (a2 * PI / 128) * 15), opt_col_p2, 5);
     }
-  
+
   if ((ox1 != x1) || (oy1 != y1))
-    {  
-      him_ufullcircle (x1, y1, 8, opt_col_p1, 5, &him_pixel);
+    {
       him_ufullcircle (x1, y1, 8, -1, 1, &px_hole);
+      him_ufullcircle (x1, y1, 8, opt_col_p1, 5, &him_pixel);
       him_line (x1 + (cos (a1 * PI / 128) * 8), y1 - (sin (a1 * PI / 128) * 8), x1 + (cos (a1 * PI / 128) * 16), y1 - (sin (a1 * PI / 128) * 16), opt_col_p1, 5);
     }
 
   if ((ox2 != x2) || (oy2 != y2))
     {
-      him_ufullcircle (x2, y2, 8, opt_col_p2, 5, &him_pixel);
       him_ufullcircle (x2, y2, 8, -1, 1, &px_hole);
+      him_ufullcircle (x2, y2, 8, opt_col_p2, 5, &him_pixel);
       him_line (x2 + (cos (a2 * PI / 128) * 8), y2 - (sin (a2 * PI / 128) * 8), x2 + (cos (a2 * PI / 128) * 16), y2 - (sin (a2 * PI / 128) * 16), opt_col_p2, 5);
     }
 
@@ -370,12 +375,12 @@ show_arrows (x1, x2)
   if ((ox1 != ~0) && (ox1 != x1))
     wrtltrzoom (ox1, 0, 0x1f, 2, -1, -1, 7);
   if (ox1 != x1)
-    wrtltrzoom (x1, 0, 0x1f, 2, 15, -1, 7);
+    wrtltrzoom (x1, 0, 0x1f, 2, opt_col_p1, -1, 7);
 
   if ((ox2 != ~0) && (ox2 != x2))
     wrtltrzoom (ox2, 0, 0x1f, 2, -1, -1, 7);
   if (ox2 != x2)
-    wrtltrzoom (x2, 0, 0x1f, 2, 15, -1, 7);
+    wrtltrzoom (x2, 0, 0x1f, 2, opt_col_p2, -1, 7);
 
   ox1 = x1;
   ox2 = x2;
@@ -388,9 +393,9 @@ showscore (p)
 {
   char s[64];
   sprintf (s, "p0: angle = %3d, force = %3d, lives = %d", p[0].a, p[0].p, p[0].l);
-  wrtwrd (0, 448, s, 0, 15, 7);
+  wrtwrd (0, 448, s, 0, opt_col_p1, 7);
   sprintf (s, "p1: angle = %3d, force = %3d, lives = %d", p[1].a, p[1].p, p[1].l);
-  wrtwrd (0, 464, s, 0, 15, 7);
+  wrtwrd (0, 464, s, 0, opt_col_p2, 7);
 }
 
 
@@ -609,28 +614,6 @@ lndrnd (int d) 	/* got time since expl, ret 1/0 - the more time since the surer 
 	percr = rand () % 100;
 	return (percr < perc);
 }
-
-
-void
-dostuff (p)
-   struct playa *p;
-{
-	unsigned int now;
-	struct Tasks *t;
-	
-	now = him_getnow();	/* returns time in ms */
-	
-	t = tsk;
-	
-	while ((t != NULL) && (t->ms != 0)) {
-		if (t->last + t->ms <= now) {
-			t->func (p);
-			t->last = now;
-		}
-		t++;
-	}
-	
-}	
 
 
 void
@@ -1424,12 +1407,12 @@ void showebar (int p0, int p1)
 {
 	static int a = 0, b = 0;
 	if (p0 != a) {
-		him_box (SCR_X - 1 - (p0 * 128 / opt_mwe), SCR_Y - 32, SCR_X - 1,                        SCR_Y - 17, 15, 7);
+		him_box (SCR_X - 1 - (p0 * 128 / opt_mwe), SCR_Y - 32, SCR_X - 1,                        SCR_Y - 17, opt_col_p1, 7);
 		him_box (SCR_X - 128,                      SCR_Y - 32, SCR_X - 2 - (p0 * 128 / opt_mwe), SCR_Y - 17, -1, 7);
 		a = p0;
 	}
 	if (p1 != b) {
-		him_box (SCR_X - 1 - (p1 * 128 / opt_mwe), SCR_Y - 16, SCR_X - 1,                        SCR_Y - 1, 15, 7);
+		him_box (SCR_X - 1 - (p1 * 128 / opt_mwe), SCR_Y - 16, SCR_X - 1,                        SCR_Y - 1, opt_col_p2, 7);
 		him_box (SCR_X - 128,                      SCR_Y - 16, SCR_X - 2 - (p1 * 128 / opt_mwe), SCR_Y - 1, -1, 7);
 		b = p1;
 	}
