@@ -706,11 +706,7 @@ unsigned int
 him_getnow(void)
 {
 	struct timeval tv;
-	struct timezone tz;
-	unsigned int ret;
-	
-	gettimeofday(&tv, &tz);	
-	ret = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-	
-	return ret/* - strttim*/;
+
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
 }
