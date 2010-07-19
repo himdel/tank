@@ -9,8 +9,6 @@
 #include "options.h"
 #include "general.h"
 #include "water.h"
-#include "bonus.h"
-#include "menu.h"
 
 
 #ifndef PI
@@ -29,8 +27,7 @@
 
 struct playa
   {
-    int x, a, p, l, e;		/* tank X coord, angle, power, lives,
-    				 * weap energy */
+    int x, a, p, l, e;		/* tank X coord, angle, power, lives, weap energy */
   };
 
 struct spos
@@ -52,7 +49,6 @@ struct shootp
     int hit;
     struct shootp *nxt;
     int who;
-    int compid;  /* compid - -1 if not comp */
   } *shoo;
 
 struct expl
@@ -84,16 +80,6 @@ struct lndpts
     unsigned int tm;
   } *lndpt;
 
-struct compsht
-  {
-    int a, p, d, id;  /* angle, power, distance, id */
-  };
-
-struct compshts
-  {
-    int p;
-    struct compsht **s;
-  } cmps;
 
 
 int lmhs[SCR_X];    /* land max heights */
@@ -102,7 +88,6 @@ int nc;  /* num clouds */
 
 void paint_stars (int);
 void gen_paint_land (void);	/* std bezier land */
-void gen_paint_land2 (void);	/* gorilla land */
 void gen_paint_clouds (int);
 void bonuses (void);
 void paint_tanx (int, int, int, int);
@@ -132,10 +117,6 @@ int px_hole (int, int, int, int);
 int px_cloud (int, int, int, int);
 int px_moon (int, int, int, int);
 
-void compfir (struct playa *, int);
-void compset (int, int);
-void checknet (struct playa *, int);
-
 int lndrnd (int);
 
 void showebar (int, int);
@@ -161,7 +142,6 @@ int
 main (void)
 {
   struct playa p[2];
-  int mnu = 1;
 
   printf ("tank\nMartin HRADIL\nhttp://github.com/himdel/tank\n\n");
   opt_init ();  /* set or load options */
@@ -175,101 +155,70 @@ main (void)
 
   srand (time (NULL));
 
-  cmps.p = -1;
-  cmps.s = (struct compsht **) NULL;
+  him_clrscr ();
+  water_init ();
 
-  while ((mnu = startmenu (mnu)))
+  nc = (rand () % 6) + 2;
+  c = (struct spos *) calloc (nc, sizeof (struct spos));
+
+  expb = (struct expl *) NULL;
+  shoo = (struct shootp *) NULL;
+  lndpt = (struct lndpts *) NULL;
+
+  wrtwrd (247, 232, "GENERATING TERRAIN", 12, 0, 7);
+  him_repaint ();
+
+  if (!him_is_SDL)
+    him_dirmode = 1;
+
+  paint_stars(opt_num_stars);   /* paints stars */
+  gen_paint_land();   /* generates and paints land */
+  water_land(lmhs);   /* fill valleys with water */
+  gen_paint_clouds(nc);  /* generates and paints clouds */
+
+  p[0].x = (rand() % 288) + 16;       /* generates positions */
+  p[1].x = (rand() % 288) + 336;
+  p[0].a = 32; p[1].a = 96;    /* sets angles, forces and lives */
+  p[0].p = p[1].p = 127;
+  p[0].l = p[1].l = opt_ilives;
+  p[0].e = p[1].e = opt_iwe;
+
+  paint_tanx (p[0].x, p[0].a, p[1].x, p[1].a);   /* paints tanks */
+
+  show_arrows (p[0].x, p[1].x);
+  showscore (p);
+
+  him_dirmode = 0;
+
+  wrtwrd (247, 232, "GENERATING TERRAIN", -1, -1, 7);
+  him_repaint ();
+
+  while ((p[0].l > 0) && (p[1].l > 0))   /* main loop */
     {
-      int net = 0;
-      if (menu_p0 == 1)
-        net = 1;
-      if (menu_p1 == 1)
-        net = 2;
-      if (menu_p0 > 1)
-        cmps.p = 0;
-      if (menu_p1 > 1)
-        cmps.p = 1;
-      if (cmps.p != -1)
-        cmps.s = (struct compsht **) calloc (3, sizeof (struct compsht *));
-       
-      him_clrscr ();
-      water_init ();
-
-      nc = (rand () % 6) + 2;
-      c = (struct spos *) calloc (nc, sizeof (struct spos));
-  
-      expb = (struct expl *) NULL;
-      shoo = (struct shootp *) NULL;
-      lndpt = (struct lndpts *) NULL;
-      
-      wrtwrd (247, 232, "GENERATING TERRAIN", 12, 0, 7);
+      checkkeys (p);
+      dostuff (p);
+      showebar (p[0].e, p[1].e);
       him_repaint ();
-
-      if (!him_is_SDL)
-        him_dirmode = 1;
-      
-      paint_stars(opt_num_stars);   /* paints stars */
-      gen_paint_land();   /* generates and paints land */
-      water_land(lmhs);   /* fill valleys with water */
-      gen_paint_clouds(nc);  /* generates and paints clouds */
-  
-      p[0].x = (rand() % 288) + 16;       /* generates positions */
-      p[1].x = (rand() % 288) + 336;
-      p[0].a = 32; p[1].a = 96;    /* sets angles, forces and lives */
-      p[0].p = p[1].p = 127;
-      p[0].l = p[1].l = opt_ilives;
-      p[0].e = p[1].e = opt_iwe;
-  
-      paint_tanx (p[0].x, p[0].a, p[1].x, p[1].a);   /* paints tanks */
-  
-      show_arrows (p[0].x, p[1].x);
-      showscore (p);
-      
-      him_dirmode = 0;
-
-      wrtwrd (247, 232, "GENERATING TERRAIN", -1, -1, 7);
-      him_repaint ();
-
-      while ((p[0].l > 0) && (p[1].l > 0))   /* main loop */
-        {
-          checkkeys (p);
-          if (net)
-            checknet (p, net - 1);
-          dostuff (p);
-          showebar (p[0].e, p[1].e);
-          him_repaint ();
-        }  
-  
-      if ((p[0].l <= 0) && (p[1].l <= 0))
-        printf ("\ngame quit\n");
-      else if (p[0].l <= 0)
-        printf ("\nplayer 1 wins!\n");
-      else
-        printf ("\nplayer 0 wins!\n");
-  
-      if (cmps.s != NULL)
-        {
-          if (cmps.s[0] != NULL)
-            free (cmps.s[0]);
-          if (cmps.s[1] != NULL)
-            free (cmps.s[1]);
-          if (cmps.s[2] != NULL)
-            free (cmps.s[2]);
-          free (cmps.s);
-          cmps.p = -1;
-        }
-      water_destroy ();
-      while ((shoo = freeso (shoo)) != NULL);
-      while (expb != NULL)
-        {
-          struct expl *ex;
-          ex = expb;
-          expb = expb->nxt;
-          free (ex);
-        }
-      free (c);
     }
-    
+
+  if ((p[0].l <= 0) && (p[1].l <= 0))
+    printf ("\ngame quit\n");
+  else if (p[0].l <= 0)
+    printf ("\nplayer 1 wins!\n");
+  else
+    printf ("\nplayer 0 wins!\n");
+
+  water_destroy ();
+  while ((shoo = freeso (shoo)) != NULL);
+  while (expb != NULL)
+    {
+      struct expl *ex;
+      ex = expb;
+      expb = expb->nxt;
+      free (ex);
+    }
+  free (c);
+
   letters_destroy ();   /* free font */
   him_destroy ();       /* free graphics */
 
@@ -454,150 +403,143 @@ checkkeys (p)
 {
   int n = 0;
   static int ps = 0, pe = 0;
- 
-  him_keyupd (); 
-  
-  if (him_keypr (SCANCODE_GRAVE))
-    {}
- 
-  if (menu_p0 == 0)
+
+  him_keyupd();
+
+  if (him_keypr (SCANCODE_GRAVE));
+
+  if (him_keypr (SCANCODE_Q))
     {
-      if (him_keypr (SCANCODE_Q))
-        {
-          p[0].a = (p[0].a + 1) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_R))
-       {
-          p[0].a = (p[0].a + 255) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_E))
-        {
-          p[0].p = (p[0].p + 1) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_W))
-        {
-          p[0].p = (p[0].p + 255) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_A))
-        {
-          p[0].a = (p[0].a + 4) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_F))
-       {
-          p[0].a = (p[0].a + 252) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_D))
-        {
-          p[0].p = (p[0].p + 4) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_S))
-        {
-          p[0].p = (p[0].p + 252) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_Z))
-        {
-          p[0].a = (p[0].a + 16) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_V))
-       {
-          p[0].a = (p[0].a + 240) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_C))
-        {
-          p[0].p = (p[0].p + 16) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_X))
-        {
-          p[0].p = (p[0].p + 240) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_T))
-        {
-          p[0].a = (128 - p[0].a);
-          n++;
-        }
+      p[0].a = (p[0].a + 1) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_R))
+   {
+      p[0].a = (p[0].a + 255) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_E))
+    {
+      p[0].p = (p[0].p + 1) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_W))
+    {
+      p[0].p = (p[0].p + 255) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_A))
+    {
+      p[0].a = (p[0].a + 4) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_F))
+   {
+      p[0].a = (p[0].a + 252) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_D))
+    {
+      p[0].p = (p[0].p + 4) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_S))
+    {
+      p[0].p = (p[0].p + 252) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_Z))
+    {
+      p[0].a = (p[0].a + 16) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_V))
+   {
+      p[0].a = (p[0].a + 240) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_C))
+    {
+      p[0].p = (p[0].p + 16) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_X))
+    {
+      p[0].p = (p[0].p + 240) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_T))
+    {
+      p[0].a = (128 - p[0].a);
+      n++;
     }
   
-  if (menu_p1 == 0)
+  if (him_keypr (SCANCODE_U))
     {
-      if (him_keypr (SCANCODE_U))
-        {
-          p[1].a = (p[1].a + 1) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_P))
-       {
-          p[1].a = (p[1].a + 255) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_O))
-        {
-          p[1].p = (p[1].p + 1) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_I))
-        {
-          p[1].p = (p[1].p + 255) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_H))
-        {
-          p[1].a = (p[1].a + 4) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_L))
-       {
-          p[1].a = (p[1].a + 252) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_K))
-        {
-          p[1].p = (p[1].p + 4) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_J))
-        {
-          p[1].p = (p[1].p + 252) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_B))
-        {
-          p[1].a = (p[1].a + 16) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_COMMA))
-        {
-          p[1].a = (p[1].a + 240) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_M))
-        {
-          p[1].p = (p[1].p + 16) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_N))
-        {
-          p[1].p = (p[1].p + 240) % 256;
-          n++;
-        }
-      if (him_keypr (SCANCODE_Y))
-        {
-          p[1].a = (128 - p[1].a);
-          n++;
-        }
+      p[1].a = (p[1].a + 1) % 256;
+      n++;
     }
-      
+  if (him_keypr (SCANCODE_P))
+   {
+      p[1].a = (p[1].a + 255) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_O))
+    {
+      p[1].p = (p[1].p + 1) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_I))
+    {
+      p[1].p = (p[1].p + 255) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_H))
+    {
+      p[1].a = (p[1].a + 4) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_L))
+   {
+      p[1].a = (p[1].a + 252) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_K))
+    {
+      p[1].p = (p[1].p + 4) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_J))
+    {
+      p[1].p = (p[1].p + 252) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_B))
+    {
+      p[1].a = (p[1].a + 16) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_COMMA))
+    {
+      p[1].a = (p[1].a + 240) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_M))
+    {
+      p[1].p = (p[1].p + 16) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_N))
+    {
+      p[1].p = (p[1].p + 240) % 256;
+      n++;
+    }
+  if (him_keypr (SCANCODE_Y))
+    {
+      p[1].a = (128 - p[1].a);
+      n++;
+    }
+
   if (n)
     {
       paint_tanx (p[0].x, p[0].a, p[1].x, p[1].a);
@@ -607,29 +549,21 @@ checkkeys (p)
   if (him_keypr (SCANCODE_ESCAPE))
     p[0].l = p[1].l = 0;
 
-  if ((menu_p1 == 0) && (him_keypr (SCANCODE_ENTER)))
+  if (him_keypr (SCANCODE_ENTER))
     pe++;
   else
     pe = 0;
 
-  if ((menu_p0 == 0) && (him_keypr (SCANCODE_SPACE)))
+  if (him_keypr (SCANCODE_SPACE))
     ps++;
   else
     ps = 0;
-        
+
   if (pe == 1)
-    {
-      fire (p, 1);
-      if (menu_p0 > 1)
-        compfir (p, 0);
-    }
- 
+    fire (p, 1);
+
   if (ps == 1)
-    {
-      fire (p, 0);
-      if (menu_p1 > 1)
-        compfir (p, 1);
-    }
+    fire (p, 0);
 }
 
 
@@ -638,7 +572,7 @@ fire (p, n)
     struct playa *p;
     int n;
 {
-  float vx, vy, bx, by;  
+  float vx, vy, bx, by;
   int y, e;
   struct shootp *foo;
   struct shotp *bar;
@@ -647,7 +581,7 @@ fire (p, n)
   p[n].e -= e;
 
   y = (getwl (p[n].x) ? min (lmhs[p[n].x] - 8, getwl (p[n].x)) : (lmhs[p[n].x] - 8));
-  
+
   bx = (float) (p[n].x + (cos (p[n].a * PI / 128.0) * 16));
   by = (float) (y - (sin (p[n].a * PI / 128.0) * 16));
 
@@ -658,7 +592,7 @@ fire (p, n)
   bar->x = bx;
   bar->y = by;
   bar->nxt = NULL;
-  
+
   foo = (struct shootp *) malloc (sizeof (struct shootp));
   foo->shon = 1;
   foo->hit = 0;
@@ -667,7 +601,6 @@ fire (p, n)
   foo->nxt = shoo;
   foo->shob = foo->shol = bar;
   foo->who = n;
-  foo->compid = -1;
 
   return (shoo = foo);
 }
@@ -804,13 +737,6 @@ do_fire (p)
                   v = (int) (sqrt (sqr (vx) + sqr (vy)) * 20) + 2;
                   addexplpnt ((int) (bx + vx), (int) (by + vy), v);
                   hsoo->hit = 2;
-                  if (hsoo->compid != -1)
-                    {
-                      int x, y;
-                      x = p[(hsoo->who ? 0 : 1)].x;
-                      y = (getwl (x) ? min(lmhs[x] - 8, getwl (x)) : (lmhs[x] - 8));
-                      compset (hsoo->compid, (int) near ((int) (bx + vx), (int) (by + vy), x, y));
-                    }
                 }
               else
                 {
@@ -873,8 +799,6 @@ do_fire (p)
               show_arrows (p[0].x, p[1].x);
               showscore (p);
               addexplpnt ((int) (bx + vx), (int) (by + vy), 16);
-              if (hsoo->compid != -1)
-                compset (hsoo->compid, 0);
             }
           
           hsoo->vx = vx;
@@ -1377,7 +1301,7 @@ cloud (cc)
       cc->y = (rand () % (foo - 64)) + 32;
       sc = 1;
     }
-  
+
   px = (int *) malloc (8 * sizeof (int));
   py = (int *) malloc (8 * sizeof (int));
 
@@ -1389,7 +1313,7 @@ cloud (cc)
       him_destroy ();       /* free graphics */
       exit (1);
     }
-          
+
   px[0] = 0;
   py[0] = 0;
   px[1] = (rand () % 32);
@@ -1466,7 +1390,7 @@ light_depaint (l)
     struct lght *l;
 {
   int foo;
-  
+
   for (foo = 0; foo < l->nc; foo++)
     {
       light_depaint (l->c[foo]);
@@ -1480,10 +1404,10 @@ addlndpt (x, y)
     int x, y;
 {
   struct lndpts *nw;
-  
+
   if (!opt_lndsld)
     return;
-  
+
   nw = (struct lndpts *) malloc (sizeof (struct lndpts));
 
   nw->p = nw->n = (struct lndpts *) NULL;
@@ -1498,95 +1422,8 @@ addlndpt (x, y)
   nw->x = x;
   nw->y = y;
   nw->tm = him_getnow();
-  
 }
 
-
-void
-compfir (p, pl)
-    struct playa *p;
-    int pl;
-{
-  struct compsht *nw;
-  static int id = 0;
- 
-  if (cmps.p != pl)
-    {
-      printf ("tank: internal error 0xdeadbeef: %d != %d\n", cmps.p, pl);
-      return;
-    }
- 
-/* TODO this properly: */
-  if ((cmps.s[0] != NULL) && (cmps.s[0]->d != -1) && (cmps.s[1] != NULL) && (cmps.s[1]->d != -1))
-    {
-      int foo;
-      foo = (cmps.s[0]->p - cmps.s[1]->p) / (cmps.s[0]->d - cmps.s[1]->d);
-      p[pl].p += foo;
-    }
-  else
-    p[pl].p += 4;
- 
-  nw = (struct compsht *) calloc (1, sizeof (struct compsht));
-  nw->a = p[pl].a;
-  nw->p = p[pl].p;
-  nw->d = -1;
-  nw->id = id;
-  
-  if (cmps.s[2] != NULL)
-    free (cmps.s[2]);
-  cmps.s[2] = cmps.s[1];
-  cmps.s[1] = cmps.s[0];
-  cmps.s[0] = nw;
-
-  fire (p, pl);
-  shoo->compid = id++;
-}
-
-
-void
-compset (id, d)
-     int id, d;
-{
-  if ((cmps.s[0] != NULL) && (cmps.s[0]->id == id))
-    cmps.s[0]->d = d;
-  if ((cmps.s[1] != NULL) && (cmps.s[1]->id == id))
-    cmps.s[1]->d = d;
-  if ((cmps.s[2] != NULL) && (cmps.s[2]->id == id))
-    cmps.s[2]->d = d;
-  printf ("comps shot id %d dist %d\n", id, d);
-}
-
-
-void
-checknet (p, pl)
-    struct playa *p;
-    int pl;
-{
-  /* TODO all */
-}
-
-
-void
-gen_paint_land2 ()	/* gorilla land */
-{
-	int foo, w = SCR_X;
-
-	while (w) {
-		int new, y;
-		new = rand () % 32 + 16;
-		w -= new;
-		if (w < 0) {
-			new += w;
-			w = 0;
-		}
-		y = (rand () % 384) + 64;
-		
-		him_box (SCR_X - w - new, y, SCR_X - 1 - w, SCR_Y - 1, opt_col_land, 1);
-		/* TODO windows */
-		for (foo = SCR_X - w - new; foo <= SCR_X - 1 - w; foo++)
-			lmhs[foo] = y;
-	}
-}
 
 void showebar (int p0, int p1)
 {
@@ -1602,5 +1439,3 @@ void showebar (int p0, int p1)
 		b = p1;
 	}
 }
-
-/* THIS IS THE END */
