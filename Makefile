@@ -12,10 +12,10 @@ all: tank
 tank: main.o $(OBJS)
 	$(CC) -o $@ $^ $(LIBS) $(SDLLIBS)
 
-paint.o: paint.c paint.h general.h options.h
+paint.o: paint.c paint.h general.h vgakeyboard.h
 	$(CC) -o $@ -c $< $(CFLAGS) $(SDLCFLAGS) -DTANK
 
-main.o: main.c paint.h letters.h options.h water.h
+main.o: main.c paint.h letters.h options.h water.h general.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 general.o: general.c general.h
