@@ -1,6 +1,5 @@
 /*
  options.c - options for tank
- himdel@seznam.cz
  */
 
 

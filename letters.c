@@ -1,6 +1,5 @@
 /*
   letters.c - letter writing routines for tank
-  himdel@seznam.cz
  */
 
 #include <stdio.h>

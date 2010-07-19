@@ -22,7 +22,7 @@
 
 #define SCR_X 640
 #define SCR_Y 480
-#define SCR_C (him_is_SDL ? 256 : 16)
+#define SCR_C 256
 
 
 struct playa
@@ -167,9 +167,6 @@ main (void)
 
   wrtwrd (247, 232, "GENERATING TERRAIN", 12, 0, 7);
   him_repaint ();
-
-  if (!him_is_SDL)
-    him_dirmode = 1;
 
   paint_stars(opt_num_stars);   /* paints stars */
   gen_paint_land();   /* generates and paints land */

@@ -1,6 +1,5 @@
 /*
  options.h - options for tank
- himdel@seznam.cz
  */
 
 

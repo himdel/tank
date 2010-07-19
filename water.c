@@ -1,6 +1,5 @@
 /*
   water.c - water routines for tank
-  himdel@seznam.cz
   
   the formula is: p = g * r * h
   p - pressure (Pa = N / m^2)

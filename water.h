@@ -1,6 +1,5 @@
 /*
   water.h - water routines for tank
-  himdel@seznam.cz
  */
 
 

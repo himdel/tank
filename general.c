@@ -1,6 +1,5 @@
 /*
   general.c - general routines for fonted
-  himdel@seznam.cz
  */
 
 
