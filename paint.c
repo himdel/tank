@@ -1,11 +1,4 @@
-/*
-  paintSDL.c - SDL him_painting routines for tank
-  
-  note: I'm not actually using any SDL abilites yet except pixel
-        painting in him_repaint (), init and quit in him_init and
-        him_destroy and keyboard thingies :)
- */
-
+#include <assert.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,20 +10,18 @@
 #include "SDL.h"
 
 
-void torep (int, int);
-int h__sk2SK (SDLKey);
-Uint8 getpixel (SDL_Surface *, int, int);
-void putpixel (SDL_Surface *, int, int, Uint32);
+static void torep(int, int);
+static Uint8 getpixel(SDL_Surface *, int, int);
+static void putpixel(SDL_Surface *, int, int, Uint32);
 
 
-struct reps
-  {
-    int x, y;
-    struct reps *nxt;
-  } *rb;
-  
+struct reps {
+	int x, y;
+	struct reps *nxt;
+} *rb;
 
-int sx = 0, sy = 0, sc = 0, sl = 0, raw = 0;
+
+int sx = 0, sy = 0, sc = 0, sl = 0;
 SDL_Surface **layers;
 SDL_Surface *scr;
 int keyz[128];
@@ -42,159 +33,136 @@ extern int opt_col_wtr;  /* for use in getpixel */
 
 
 int
-him_init (x, y, c, l, rw)
-     int x, y, c, l, rw;
+him_init(int x, int y, int c, int l)
 {
-  int foo;
+	for (int foo = 0; foo < 128; foo++)
+		keyz[foo] = 0;
 
-  for (foo = 0; foo < 128; foo++)
-    keyz[foo] = 0;
-
-  if (SDL_Init (SDL_INIT_VIDEO) == -1)
-    {
-      printf ("SDL_Init: %s\n", SDL_GetError ());
-      return (-1);
-    }
+	if (SDL_Init (SDL_INIT_VIDEO) == -1) {
+		printf("SDL_Init: %s\n", SDL_GetError());
+		return -1;
+	}
 
 #ifdef TANK
-  SDL_WM_SetCaption ("tank", "tank");
-  SDL_WM_SetIcon (SDL_LoadBMP ("img/icon.bmp"), NULL);
-#endif /* TANK */
+	SDL_WM_SetCaption ("tank", "tank");
+	SDL_WM_SetIcon (SDL_LoadBMP ("img/icon.bmp"), NULL);
+#endif		/* TANK */
 
-  scr = SDL_SetVideoMode (x, y, 8, SDL_SWSURFACE);
-  if (scr == NULL)
-    {
-      printf ("SDL_SetVideoMode: %s\n", SDL_GetError ());
-      SDL_Quit ();
-      return (-1);
-    } 
+	scr = SDL_SetVideoMode (x, y, 8, SDL_SWSURFACE);
+	assert(scr);
 
-  sx = x;
-  sy = y;
-  sc = c;
-  sl = l;
-  raw = rw;
-  
-  if (l < 1)
-    return -1;
-    
-  rb = NULL;
+	sx = x;
+	sy = y;
+	sc = c;
+	sl = l;
 
-  layers = (SDL_Surface **) calloc (l, sizeof (SDL_Surface *)); 
-  if (layers == NULL)
-    {
-      printf ("him_init: calloc (%d, sizeof (SDL_Surface *)) failed\n", l);
-      return -1;
-    }
-  
-  for (foo = 0; foo < l; foo++)
-    {
-      int x, y;
-      
-      *(layers + foo) = SDL_CreateRGBSurface (SDL_SWSURFACE, 640, 480, 8, 0xff, 0xff00, 0xff0000, 0xff000000);
+	if (l < 1)
+		return -1;
 
-      if ((*(layers + foo)) == NULL)
-        {
-          printf ("him_init (): SDL_CreateRGBSurface failed\n");
-          sl = foo;
-          him_destroy ();
-          return -1;
-        }
-      
-      if (SDL_MUSTLOCK ((*(layers + foo))))
-        SDL_LockSurface (*(layers + foo));
+	rb = NULL;
 
-      for (x = 0; x < 640; x++)
-        for (y = 0; y < 480; y++)
-          putpixel (*(layers + foo), x, y, 0xff);
+	layers = calloc(l, sizeof(SDL_Surface *));
+	assert(layers);
 
-      if (SDL_MUSTLOCK ((*(layers + foo))))
-        SDL_UnlockSurface (*(layers + foo));
-    }
+	for (int foo = 0; foo < l; foo++) {
+		int x, y;
 
-  if (c >= 16)  /* set standard VGA 0-15 colors */
-    {
-      SDL_Color colors[16];
+		*(layers + foo) = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8, 0xff, 0xff00, 0xff0000, 0xff000000);
+		assert(*(layers + foo));
 
-      colors[0].r = 0;
-      colors[0].g = 0;
-      colors[0].b = 0;
+		if (SDL_MUSTLOCK((*(layers + foo))))
+			SDL_LockSurface(*(layers + foo));
 
-      colors[1].r = 0;
-      colors[1].g = 0;
-      colors[1].b = 168;
+		for (x = 0; x < 640; x++)
+			for (y = 0; y < 480; y++)
+				putpixel(*(layers + foo), x, y, 0xff);
 
-      colors[2].r = 0;
-      colors[2].g = 168;
-      colors[2].b = 0;
+		if (SDL_MUSTLOCK((*(layers + foo))))
+			SDL_UnlockSurface(*(layers + foo));
+	}
 
-      colors[3].r = 0;
-      colors[3].g = 168;
-      colors[3].b = 168;
+	if (c >= 16) {  /* set standard VGA 0-15 colors */
+		SDL_Color colors[16];
 
-      colors[4].r = 168;
-      colors[4].g = 0;
-      colors[4].b = 0;
+		colors[0].r = 0;
+		colors[0].g = 0;
+		colors[0].b = 0;
 
-      colors[5].r = 168;
-      colors[5].g = 0;
-      colors[5].b = 168;
+		colors[1].r = 0;
+		colors[1].g = 0;
+		colors[1].b = 168;
 
-      colors[6].r = 168;
-      colors[6].g = 84;
-      colors[6].b = 0;
+		colors[2].r = 0;
+		colors[2].g = 168;
+		colors[2].b = 0;
 
-      colors[7].r = 168;
-      colors[7].g = 168;
-      colors[7].b = 168;
+		colors[3].r = 0;
+		colors[3].g = 168;
+		colors[3].b = 168;
 
-      colors[8].r = 84;
-      colors[8].g = 84;
-      colors[8].b = 84;
+		colors[4].r = 168;
+		colors[4].g = 0;
+		colors[4].b = 0;
 
-      colors[9].r = 84;
-      colors[9].g = 84;
-      colors[9].b = 252;
+		colors[5].r = 168;
+		colors[5].g = 0;
+		colors[5].b = 168;
 
-      colors[10].r = 84;
-      colors[10].g = 252;
-      colors[10].b = 84;
-      
-      colors[11].r = 84;
-      colors[11].g = 252;
-      colors[11].b = 252;
-      
-      colors[12].r = 252;
-      colors[12].g = 84;
-      colors[12].b = 84;
-      
-      colors[13].r = 252;
-      colors[13].g = 84;
-      colors[13].b = 252;
-      
-      colors[14].r = 252;
-      colors[14].g = 252;
-      colors[14].b = 84;
-      
-      colors[15].r = 252;
-      colors[15].g = 252;
-      colors[15].b = 252;
+		colors[6].r = 168;
+		colors[6].g = 84;
+		colors[6].b = 0;
 
-      SDL_SetColors (scr, colors, 0, 16);
+		colors[7].r = 168;
+		colors[7].g = 168;
+		colors[7].b = 168;
+
+		colors[8].r = 84;
+		colors[8].g = 84;
+		colors[8].b = 84;
+
+		colors[9].r = 84;
+		colors[9].g = 84;
+		colors[9].b = 252;
+
+		colors[10].r = 84;
+		colors[10].g = 252;
+		colors[10].b = 84;
+		
+		colors[11].r = 84;
+		colors[11].g = 252;
+		colors[11].b = 252;
+		
+		colors[12].r = 252;
+		colors[12].g = 84;
+		colors[12].b = 84;
+		
+		colors[13].r = 252;
+		colors[13].g = 84;
+		colors[13].b = 252;
+		
+		colors[14].r = 252;
+		colors[14].g = 252;
+		colors[14].b = 84;
+		
+		colors[15].r = 252;
+		colors[15].g = 252;
+		colors[15].b = 252;
+
+		SDL_SetColors(scr, colors, 0, 16);
     }
 
-  printf ("him_init ... [  %c[32mOK%c[0m  ]\n", 27, 27);
-  printf ("\nUsing SDL, licensed under LGPL and downloadable from http://www.libsdl.org/.\n\n");
+	printf("him_init ... [  %c[32mOK%c[0m  ]\n", 27, 27);
+	printf("\nUsing SDL, licensed under LGPL and downloadable from http://www.libsdl.org/.\n\n");
 
-  return 0;
+	return 0;
 }
 
 
 void
-him_clrscr ()
+him_clrscr()
 {
   int foo, x, y;
-  
+
   if (ucln & 1)
     {
       for (foo = 0; foo < sl; foo++)
@@ -323,7 +291,7 @@ him_destroy ()
       free (ra);
     }
 
-  sx = sy = sl = sc = raw = 0;
+  sx = sy = sl = sc = 0;
   SDL_Quit ();
 }
 
@@ -339,7 +307,7 @@ him_pixel (x, y, c, l)
     return him_putpixel (x, y, c);
 
   if ((ucln & 1) == 0)
-    ucln ++;
+    ucln |= 1;
 
   if (SDL_MUSTLOCK ((*(layers + l))))
     SDL_LockSurface (*(layers + l));
@@ -366,7 +334,7 @@ him_putpixel (x, y, c)
     return -1;
 
   if ((ucln & 2) == 0)
-    ucln += 2;
+    ucln |= 2;
 
   if (SDL_MUSTLOCK (scr))
     SDL_LockSurface (scr);
@@ -375,7 +343,7 @@ him_putpixel (x, y, c)
 
   if (SDL_MUSTLOCK (scr))
     SDL_UnlockSurface (scr);
- 
+
   return 0;
 }
 
@@ -717,320 +685,194 @@ him_filledtriangle (x1, y1, x2, y2, x3, y3, c, l)
 
 
 void
-him_repaint ()
+him_repaint()
 {
-  if (rb == NULL)
-    return;
+	if (rb == NULL)
+		return;
 
-  if (SDL_MUSTLOCK (scr) && (SDL_LockSurface (scr) < 0))
-    return;
-          
-  while (rb != NULL)
-    {
-      struct reps *ra;
-      ra = rb;
-      rb = rb->nxt;
-      
-      putpixel (scr, ra->x, ra->y, him_getpixel (ra->x, ra->y, -1));
+	if (SDL_MUSTLOCK(scr) && (SDL_LockSurface(scr) < 0))
+		return;
 
-      free (ra);
-    }
+	while (rb != NULL) {
+		struct reps *ra = rb;
+		rb = rb->nxt;
 
-  if (SDL_MUSTLOCK (scr))
-    SDL_UnlockSurface (scr);
+		putpixel(scr, ra->x, ra->y, him_getpixel(ra->x, ra->y, -1));
+		free (ra);
+	}
 
-  SDL_UpdateRect (scr, 0, 0, 0, 0);
-}
+	if (SDL_MUSTLOCK(scr))
+		SDL_UnlockSurface(scr);
 
-
-void
-him_keykill ()
-{
-/* NOT NEEDED */
+	SDL_UpdateRect (scr, 0, 0, 0, 0);
 }
 
 
 int
-him_getkey ()
+him_getkey()
 {
-  SDL_Event ev;
-  
-  while (SDL_PollEvent (&ev))
-    {
-      switch (ev.type)
-        {
-          case SDL_KEYDOWN:
-            return (ev.key.keysym.sym);  /* usually works but not well - Shift+a doesnt return 'A' but ?, 'a' */
-            break;
-          case SDL_KEYUP:
-            break;
-          case SDL_QUIT:  /* just returns escape - clumsy but works */
-            return 27;
-        }
-    }
-
-  return 0;
+	SDL_Event ev;
+	while (SDL_PollEvent(&ev)) {
+		switch (ev.type) {
+			case SDL_KEYDOWN:
+				return ev.key.keysym.sym;		/* usually works but not well - Shift+a doesnt return 'A' but ?, 'a' */
+			case SDL_KEYUP:
+				break;
+			case SDL_QUIT:		/* just returns escape - clumsy but works */
+				return SDLK_ESCAPE;
+		}
+	}
+	return 0;
 }
 
 
 void
-him_setpalette (c, r, g, b)
-    int c, r, g, b;
+him_setpalette(int c, int r, int g, int b)
 {
-  SDL_Color color;
+	SDL_Color color;
 
-  if ((c < 0) || (c >= sc) || (r < 0) || (g < 0) || (b < 0) || (r > 255) || (g > 255) || (b > 255))
-    return;
+	if ((c < 0) || (c >= sc) || (r < 0) || (g < 0) || (b < 0) || (r > 255) || (g > 255) || (b > 255))
+		return;
 
-  color.r = r;
-  color.g = g;
-  color.b = b;
+	color.r = r;
+	color.g = g;
+	color.b = b;
 
-  SDL_SetColors (scr, &color, c, 1);
+	SDL_SetColors(scr, &color, c, 1);
 }
 
 
 void
-him_getpalette (c, r, g, b)
-    int c, *r, *g, *b;
+him_getpalette(int c, int *r, int *g, int *b)
 {
-  if ((c < 0) || (c >= sc))
-    return;
+	if ((c < 0) || (c >= sc))
+		return;
 
-  *r = scr->format->palette->colors[c].r;
-  *g = scr->format->palette->colors[c].g;
-  *b = scr->format->palette->colors[c].b;
+	*r = scr->format->palette->colors[c].r;
+	*g = scr->format->palette->colors[c].g;
+	*b = scr->format->palette->colors[c].b;
 }
 
 
 void
-him_getpalvec (s, n, b)
-    int s, n, *b;
+him_getpalvec(int s, int n, int *b)
 {
-  int foo;
+	if ((s < 0) || (s >= sc) || (n < 0) || ((s + n) >= sc) || (b == NULL))
+		return;
 
-  if ((s < 0) || (s >= sc) || (n < 0) || ((s + n) >= sc) || (b == NULL))
-    return;
-    
-  for (foo = 0; foo < n; foo++)
-    {
-      *(b + (3 * foo)) = scr->format->palette->colors[s + foo].r;
-      *(b + (3 * foo) + 1) = scr->format->palette->colors[s + foo].g;
-      *(b + (3 * foo) + 2) = scr->format->palette->colors[s + foo].b;
-    }
+	for (int foo = 0; foo < n; foo++) {
+		*(b + (3 * foo)) = scr->format->palette->colors[s + foo].r;
+		*(b + (3 * foo) + 1) = scr->format->palette->colors[s + foo].g;
+		*(b + (3 * foo) + 2) = scr->format->palette->colors[s + foo].b;
+	}
 }
 
 
 void
-him_setpalvec (s, n, b)
-    int s, n, *b;
+him_setpalvec(int s, int n, int *b)
 {
-  int foo;
-  SDL_Color *col;
+	if ((s < 0) || (s >= sc) || (n < 0) || ((s + n) >= sc) || (b == NULL))
+		return;
 
-  if ((s < 0) || (s >= sc) || (n < 0) || ((s + n) >= sc) || (b == NULL))
-    return;
-  
-  col = (SDL_Color *) calloc (n, sizeof (SDL_Color));
-  
-  for (foo = 0; foo < n; foo++)
-    {
-      col[foo].r = *(b + (3 * foo));
-      col[foo].g = *(b + (3 * foo) + 1);
-      col[foo].b = *(b + (3 * foo) + 2);
-    }
-  
-  SDL_SetColors (scr, col, s, n);
-  
-  free (col);
-}
+	SDL_Color *col = calloc(n, sizeof(SDL_Color));
 
+	for (int foo = 0; foo < n; foo++) {
+		col[foo].r = *(b + (3 * foo));
+		col[foo].g = *(b + (3 * foo) + 1);
+		col[foo].b = *(b + (3 * foo) + 2);
+	}
 
-/* TODO implement all keys, not just the ones I use in tank */
-int
-h__sk2SK (key)
-   SDLKey key;
-{
-  switch (key)
-    {
-      case SDLK_q: 
-        return SCANCODE_Q;
-      case SDLK_w:
-        return SCANCODE_W;
-      case SDLK_e:
-        return SCANCODE_E;
-      case SDLK_r:
-        return SCANCODE_R;
-      case SDLK_a:
-        return SCANCODE_A;
-      case SDLK_s:
-        return SCANCODE_S;
-      case SDLK_d:
-        return SCANCODE_D;
-      case SDLK_f:
-        return SCANCODE_F;
-      case SDLK_z:
-        return SCANCODE_Z;
-      case SDLK_x:
-        return SCANCODE_X;
-      case SDLK_c:
-        return SCANCODE_C;
-      case SDLK_v:
-        return SCANCODE_V;
-      case SDLK_u:
-        return SCANCODE_U;
-      case SDLK_i:
-        return SCANCODE_I;
-      case SDLK_o:
-        return SCANCODE_O;
-      case SDLK_p:
-        return SCANCODE_P;
-      case SDLK_h:
-        return SCANCODE_H;
-      case SDLK_j:
-        return SCANCODE_J;
-      case SDLK_k:
-        return SCANCODE_K;
-      case SDLK_l:
-        return SCANCODE_L;
-      case SDLK_b:
-        return SCANCODE_B;
-      case SDLK_n:
-        return SCANCODE_N;
-      case SDLK_m:
-        return SCANCODE_M;
-      case SDLK_COMMA:
-        return SCANCODE_COMMA;
-      case SDLK_RETURN:
-        return SCANCODE_ENTER;
-      case SDLK_SPACE:
-        return SCANCODE_SPACE;
-      case SDLK_ESCAPE:
-        return SCANCODE_ESCAPE;
-      case SDLK_UP:
-        return SCANCODE_CURSORBLOCKUP;
-      case SDLK_DOWN:
-        return SCANCODE_CURSORBLOCKDOWN;
-      case SDLK_LEFT:
-        return SCANCODE_CURSORBLOCKLEFT;
-      case SDLK_RIGHT:
-        return SCANCODE_CURSORBLOCKRIGHT;
-      case SDLK_BACKQUOTE:
-        return SCANCODE_GRAVE;
-      default:
-        return 0;
-    }
+	SDL_SetColors(scr, col, s, n);
+	free(col);
 }
 
 
 int
-him_keyupd ()
+him_keyupd()
 {
-  int waz = 0;
-  SDL_Event ev;
-  
-  while (SDL_PollEvent (&ev))
-    {
-      int foo;
-      switch (ev.type)
-        {
-          case SDL_KEYDOWN:
-            foo = h__sk2SK (ev.key.keysym.sym);
-            if (foo)
-              {
-                keyz[foo] = 1;
-                waz++;
-              }
-            break;
-          case SDL_KEYUP:
-            foo = h__sk2SK (ev.key.keysym.sym);
-            if (foo)
-              {
-                keyz[foo] = 0;
-                waz++;
-              }
-            break;
-          case SDL_QUIT:  /* just sets escape - clumsy but works */
-            waz++;
-            keyz[1] = 1;
-            break;
-        }
-    }
-  
-  return waz;
+	int waz = 0;
+	SDL_Event ev;
+
+	while (SDL_PollEvent(&ev)) {
+		switch (ev.type) {
+			case SDL_KEYDOWN:
+				keyz[ev.key.keysym.sym] = 1;
+				waz++;
+				break;
+			case SDL_KEYUP:
+				keyz[ev.key.keysym.sym] = 0;
+				waz++;
+				break;
+			case SDL_QUIT:
+				keyz[SDLK_ESCAPE] = 1;
+				waz++;
+				break;
+		}
+	}
+
+	return waz;
 }
 
 
 int
-him_keypr (key)
-    int key;
+him_keypr(int key)
 {
-  return keyz[key];
+	return keyz[key];
 }
 
 
 void
-torep (x, y)
-    int x, y;
+torep(int x, int y)
 {
-  struct reps *ra;
-  ra = (struct reps *) calloc (1, sizeof (struct reps));
-  if (ra == NULL)
-    {
-      printf ("(paint) torep: can\'t callocate 1 sizeof (struct reps)\n");
-      return;
-    }
-  ra->x = x;
-  ra->y = y;
-  ra->nxt = rb;
-  rb = ra;
+	struct reps *ra = malloc(sizeof(struct reps));
+	assert(ra);
+
+	ra->x = x;
+	ra->y = y;
+	ra->nxt = rb;
+	rb = ra;
 }
 
 
 Uint8
-getpixel (surface, x, y)
-    SDL_Surface *surface;
-    int x, y;
+getpixel(SDL_Surface *surface, int x, int y)
 {
-  return *((Uint8 *) surface->pixels + (surface->pitch * y) + x);
+	return *((Uint8 *) surface->pixels + (surface->pitch * y) + x);
 }
 
 
 void
-putpixel (surface, x, y, pixel)
-    SDL_Surface *surface;
-    int x, y;
-    Uint32 pixel;
+putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 {
-  *((Uint8 *)surface->pixels + (surface->pitch * y) + x) = pixel;
+	*((Uint8 *)surface->pixels + (surface->pitch * y) + x) = pixel;
 }
 
 
 void
-him_putlock (void)
+him_putlock()
 {
-  if (SDL_MUSTLOCK (scr))
-    SDL_LockSurface (scr);
+	if (SDL_MUSTLOCK(scr))
+		SDL_LockSurface(scr);
 }
 
 
 void
-him_putulock (void)
+him_putulock()
 {
-  if (SDL_MUSTLOCK (scr))
-    SDL_UnlockSurface (scr);
+	if (SDL_MUSTLOCK(scr))
+		SDL_UnlockSurface(scr);
 }
 
 
 void
-him_putupd (void)
+him_putupd()
 {
-  SDL_UpdateRect (scr, 0, 0, 0, 0);
+	SDL_UpdateRect(scr, 0, 0, 0, 0);
 }
 
 
 unsigned int
-him_getnow(void)
+him_getnow()
 {
 	return SDL_GetTicks();
 }
