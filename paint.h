@@ -1,13 +1,10 @@
 /*
-  paint.h - him_painting routines for tank (work for both the SVGALib and the SDL version)
-  himdel@seznam.cz
+  paint.h - him_painting routines for tank
  */
 
 #include "vgakeyboard.h"
 
 extern int him_dirmode;
-extern int him_is_SDL;
-
 
 /* screenx, screeny, colors, layers, rawkey (bool) */
 int him_init (int, int, int, int, int);
@@ -60,8 +57,6 @@ int him_keypr (int);
 unsigned int him_getnow(void);
 
 
-/* implemented in SDL only */
-int him_showimg (char *);
 void him_putlock (void);
 void him_putulock (void);
 void him_putupd (void);

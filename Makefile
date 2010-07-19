@@ -1,27 +1,19 @@
 CC = gcc
 CFLAGS = -pedantic -Wall -std=c99 -Wextra -g
 LIBS = -lm -g
-SDLLIBS = `sdl-config --libs` -lSDL_image
+SDLLIBS = `sdl-config --libs`
 SDLCFLAGS = `sdl-config --cflags`
 
-OBJS = general.o letters.o options.o water.o
+OBJS = general.o letters.o options.o water.o paint.o
 
 
-all: tank tankSDL
+all: tank
 
-tank: main.o paint.o $(OBJS)
-	$(CC) -o $@ $^ -lvga $(LIBS)
-
-tankSDL: main.o paintSDL.o $(OBJS)
+tank: main.o $(OBJS)
 	$(CC) -o $@ $^ $(LIBS) $(SDLLIBS)
 
-
 paint.o: paint.c paint.h general.h options.h
-	$(CC) -o $@ -c $< $(CFLAGS) -DTANK
-
-paintSDL.o: paintSDL.c paint.h general.h options.h
 	$(CC) -o $@ -c $< $(CFLAGS) $(SDLCFLAGS) -DTANK
-
 
 main.o: main.c paint.h letters.h options.h water.h
 	$(CC) -o $@ -c $< $(CFLAGS)
@@ -57,4 +49,4 @@ let_fnt.png: let_fnt.xpm
 
 
 clean:
-	rm -f tank tankSDL opt_save opt_load *.o *~ let_fnt.png let_fnt.xpm let_fnt core
+	rm -f tank opt_save opt_load *.o *~ let_fnt.png let_fnt.xpm let_fnt core

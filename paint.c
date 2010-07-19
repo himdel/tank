@@ -1,22 +1,26 @@
 /*
-  paint.c - him_painting routines for tank
-  himdel@seznam.cz
+  paintSDL.c - SDL him_painting routines for tank
+  
+  note: I'm not actually using any SDL abilites yet except pixel
+        painting in him_repaint (), init and quit in him_init and
+        him_destroy and keyboard thingies :)
  */
 
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vga.h>
-
-#include <sys/time.h>
+#include <unistd.h>
 
 #include "general.h"
 #include "paint.h"
-#include "options.h"
+#include "SDL.h"
 
 
 void torep (int, int);
+int h__sk2SK (SDLKey);
+Uint8 getpixel (SDL_Surface *, int, int);
+void putpixel (SDL_Surface *, int, int, Uint32);
 
 
 struct reps
@@ -26,134 +30,163 @@ struct reps
   } *rb;
   
 
-int him_dirmode = 0;
-int him_is_SDL = 0;
-static int sx = 0, sy = 0, sc = 0, sl = 0, raw = 0;
-static int ucln = 0;
-static char **layers;
-static char *scrn;
-static unsigned int strttim = 0;
-
+int him_dirmode = 1;
+int sx = 0, sy = 0, sc = 0, sl = 0, raw = 0;
+SDL_Surface **layers;
+SDL_Surface *scr;
+int keyz[128];
+int ucln = 0;
 
 #ifdef TANK
-extern int opt_col_wtr;
+extern int opt_col_wtr;  /* for use in getpixel */
 #endif
-
 
 
 int
 him_init (x, y, c, l, rw)
      int x, y, c, l, rw;
 {
-  char smode[16];
-  int foo, md;
+  int foo;
+
+  for (foo = 0; foo < 128; foo++)
+    keyz[foo] = 0;
+
+  if (SDL_Init (SDL_INIT_VIDEO) == -1)
+    {
+      printf ("SDL_Init: %s\n", SDL_GetError ());
+      return (-1);
+    }
+
+#ifdef TANK
+  SDL_WM_SetCaption ("tank", "tank");
+  SDL_WM_SetIcon (SDL_LoadBMP ("img/icon.bmp"), NULL);
+#endif /* TANK */
+
+  scr = SDL_SetVideoMode (x, y, 8, SDL_SWSURFACE);
+  if (scr == NULL)
+    {
+      printf ("SDL_SetVideoMode: %s\n", SDL_GetError ());
+      SDL_Quit ();
+      return (-1);
+    } 
 
   sx = x;
   sy = y;
   sc = c;
   sl = l;
+  raw = rw;
   
   if (l < 1)
     return -1;
     
   rb = NULL;
 
-  switch (x)
-    {
-      case 320: case 360: case 640: case 720: case 800: case 1024:
-       case 1152: case 1280: case 1600: break;
-      default: printf ("him_init: can\'t set horizontal resolution to %d pixels\n", x);
-               return -1;
-    }
-
-  switch (y)
-    {
-      case 200: case 240: case 348: case 350: case 400: case 480:
-       case 600: case 768: case 864: case 1024: case 1200: break;
-      default: printf ("him_init: can\'t set vertical resolution to %d pixels\n", y);
-               return -1;
-    }
-    
-  smode[0] = 'G';
-  smode[1] = '\0';
-  strcat (smode, itoaH (x));
-  strcat (smode, "x");
-  strcat (smode, itoaH (y));
-  strcat (smode, "x");
-
-  switch (c)
-    {
-      case 2: case 16: case 256: strcat (smode, itoaH (c)); break;
-      case 32768: strcat (smode, "32K"); break;
-      case 65536: strcat (smode, "64K"); break;
-      case 16777216: strcat (smode, "16M"); break;
-      default: printf ("him_init: can't set %d colors\n", c);
-               return -1;
-    }
-
-  if (vga_init ())
-    {
-      printf ("him_init: vga_init failed\n");
-      return -1;
-    }
-    
-  md = vga_getmodenumber (smode);
-  if (md == -1)
-    {
-      printf ("him_init: vga_getmodenumber (%s) failed\n", smode);
-      return -1;
-    }
-  
-  layers = (char **) calloc (l, sizeof (char *)); 
+  layers = (SDL_Surface **) calloc (l, sizeof (SDL_Surface *)); 
   if (layers == NULL)
     {
-      printf ("him_init: calloc (%d, sizeof (char *)) failed\n", l);
+      printf ("him_init: calloc (%d, sizeof (SDL_Surface *)) failed\n", l);
       return -1;
     }
   
   for (foo = 0; foo < l; foo++)
     {
-      int baz;
-      *(layers + foo) = (char *) calloc (x * y * ((c == 16 || c == 2) ? 1 : (c / 256)), sizeof (char));
+      int x, y;
+      
+      *(layers + foo) = SDL_CreateRGBSurface (SDL_SWSURFACE, 640, 480, 8, 0xff, 0xff00, 0xff0000, 0xff000000);
 
       if ((*(layers + foo)) == NULL)
         {
-          printf ("him_init (): calloc (%d) failed\n", (x * y * ((c == 16 || c == 2) ? 1 : (c / 256))));
+          printf ("him_init (): SDL_CreateRGBSurface failed\n");
           sl = foo;
           him_destroy ();
           return -1;
         }
       
-      for (baz = 0; baz < (x * y * ((c == 16 || c == 2) ? 1 : (c / 256))); baz++)
-        *((*(layers + foo)) + baz) = -1;
+      if (SDL_MUSTLOCK ((*(layers + foo))))
+        SDL_LockSurface (*(layers + foo));
+
+      for (x = 0; x < 640; x++)
+        for (y = 0; y < 480; y++)
+          putpixel (*(layers + foo), x, y, 0xff);
+
+      if (SDL_MUSTLOCK ((*(layers + foo))))
+        SDL_UnlockSurface (*(layers + foo));
     }
 
-  scrn = (char *) calloc (x * y * ((c == 16 || c == 2) ? 1 : (c / 256)), sizeof (char));
-  if (scrn == NULL)
+  if (c >= 16)  /* set standard VGA 0-15 colors */
     {
-      printf ("him_init (): not enough memory\n");
-      him_destroy ();
-      return -1;
+      SDL_Color colors[16];
+
+      colors[0].r = 0;
+      colors[0].g = 0;
+      colors[0].b = 0;
+
+      colors[1].r = 0;
+      colors[1].g = 0;
+      colors[1].b = 168;
+
+      colors[2].r = 0;
+      colors[2].g = 168;
+      colors[2].b = 0;
+
+      colors[3].r = 0;
+      colors[3].g = 168;
+      colors[3].b = 168;
+
+      colors[4].r = 168;
+      colors[4].g = 0;
+      colors[4].b = 0;
+
+      colors[5].r = 168;
+      colors[5].g = 0;
+      colors[5].b = 168;
+
+      colors[6].r = 168;
+      colors[6].g = 84;
+      colors[6].b = 0;
+
+      colors[7].r = 168;
+      colors[7].g = 168;
+      colors[7].b = 168;
+
+      colors[8].r = 84;
+      colors[8].g = 84;
+      colors[8].b = 84;
+
+      colors[9].r = 84;
+      colors[9].g = 84;
+      colors[9].b = 252;
+
+      colors[10].r = 84;
+      colors[10].g = 252;
+      colors[10].b = 84;
+      
+      colors[11].r = 84;
+      colors[11].g = 252;
+      colors[11].b = 252;
+      
+      colors[12].r = 252;
+      colors[12].g = 84;
+      colors[12].b = 84;
+      
+      colors[13].r = 252;
+      colors[13].g = 84;
+      colors[13].b = 252;
+      
+      colors[14].r = 252;
+      colors[14].g = 252;
+      colors[14].b = 84;
+      
+      colors[15].r = 252;
+      colors[15].g = 252;
+      colors[15].b = 252;
+
+      SDL_SetColors (scr, colors, 0, 16);
     }
-
-  for (foo = 0; foo < (x * y * ((c == 16 || c == 2) ? 1 : (c / 256))); foo++)
-    scrn[foo] = 0;
-
-  if (vga_setmode (md) == -1)
-    {
-      printf ("him_init: vga_setmode (%d) failed\n", md);
-      return -1;
-    }
-
-  if (rw)
-    {
-      raw = 1;
-      keyboard_init ();
-    }
-
-  strttim = him_getnow();
 
   printf ("him_init ... [  %c[32mOK%c[0m  ]\n", 27, 27);
+  printf ("\nUsing SDL, licensed under LGPL and downloadable from http://www.libsdl.org/.\n\n");
+
   return 0;
 }
 
@@ -161,19 +194,107 @@ him_init (x, y, c, l, rw)
 void
 him_clrscr ()
 {
-  int foo, bar;
+  int foo, x, y;
   
   if (ucln & 1)
     {
       for (foo = 0; foo < sl; foo++)
-        for (bar = 0; bar < (sx * sy * ((sc == 16 || sc == 2) ? 1 : (sc / 256))); bar++)
-          *((*(layers + foo)) + bar) = -1;
+        {
+          if (SDL_MUSTLOCK ((*(layers + foo))))
+            SDL_LockSurface (*(layers + foo));
 
-      for (foo = 0; foo < (sx * sy * ((sc == 16 || sc == 2) ? 1 : (sc / 256))); foo++)
-        scrn[foo] = 0;
+          for (x = 0; x < 640; x++)
+            for (y = 0; y < 480; y++)
+              putpixel (*(layers + foo), x, y, 0xff);
+
+          if (SDL_MUSTLOCK ((*(layers + foo))))
+            SDL_UnlockSurface (*(layers + foo));
+        }
     }
+
   if (ucln & 2)
-    vga_clear ();
+    {
+      if (SDL_MUSTLOCK (scr))
+        SDL_LockSurface (scr);
+
+      for (x = 0; x < 640; x++)
+        for (y = 0; y < 480; y++)
+          putpixel (scr, x, y, 0);
+
+      if (SDL_MUSTLOCK (scr))
+        SDL_UnlockSurface (scr);
+
+      if (sc >= 16)  /* set standard VGA 0-15 colors */
+        {
+          SDL_Color colors[16];
+
+          colors[0].r = 0;
+          colors[0].g = 0;
+          colors[0].b = 0;
+
+          colors[1].r = 0;
+          colors[1].g = 0;
+          colors[1].b = 168;
+
+          colors[2].r = 0;
+          colors[2].g = 168;
+          colors[2].b = 0;
+
+          colors[3].r = 0;
+          colors[3].g = 168;
+          colors[3].b = 168;
+    
+          colors[4].r = 168;
+          colors[4].g = 0;
+          colors[4].b = 0;
+    
+          colors[5].r = 168;
+          colors[5].g = 0;
+          colors[5].b = 168;
+
+          colors[6].r = 168;
+          colors[6].g = 84;
+          colors[6].b = 0;
+
+          colors[7].r = 168;
+          colors[7].g = 168;
+          colors[7].b = 168;
+
+          colors[8].r = 84;
+          colors[8].g = 84;
+          colors[8].b = 84;
+
+          colors[9].r = 84;
+          colors[9].g = 84;
+          colors[9].b = 252;
+
+          colors[10].r = 84;
+          colors[10].g = 252;
+          colors[10].b = 84;
+      
+          colors[11].r = 84;
+          colors[11].g = 252;
+          colors[11].b = 252;
+      
+          colors[12].r = 252;
+          colors[12].g = 84;
+          colors[12].b = 84;
+      
+          colors[13].r = 252;
+          colors[13].g = 84;
+          colors[13].b = 252;
+      
+          colors[14].r = 252;
+          colors[14].g = 252;
+          colors[14].b = 84;
+      
+          colors[15].r = 252;
+          colors[15].g = 252;
+          colors[15].b = 252;
+
+          SDL_SetColors (scr, colors, 0, 16);
+        }
+    }
 
   ucln = 0;
 }
@@ -186,17 +307,14 @@ him_destroy ()
 
   if (sx == 0)
     return;
-    
+  
   if (layers != NULL)
     {
       for (foo = 0; foo < sl; foo++)
         if (*(layers + foo) != NULL) 
-          free (*(layers + foo));
+          SDL_FreeSurface (*(layers + foo));
       free (layers);
     }
-  
-  if (scrn != NULL)
-    free (scrn);
   
   while (rb != NULL)
     {
@@ -206,13 +324,8 @@ him_destroy ()
       free (ra);
     }
 
-  if (raw)
-    keyboard_close ();
-  else
-    him_keykill ();
-
-  sx = sy = sc = sl = raw = 0;
-  vga_setmode (TEXT);
+  sx = sy = sl = sc = raw = 0;
+  SDL_Quit ();
 }
 
 
@@ -220,9 +333,6 @@ int
 him_pixel (x, y, c, l)
       int x, y, c, l;
 {
-  int foo;
-  char *bar;
-
   if ((x < 0) || (y < 0) || (x >= sx) || (y >= sy) || (l < -1) || (l > sl) || (c < -1) || (c >= sc))
     return -1;
 
@@ -230,21 +340,23 @@ him_pixel (x, y, c, l)
     return him_putpixel (x, y, c);
 
   if ((ucln & 1) == 0)
-    ucln++;
-    
-  *((*(layers + l)) + (y * sx) + x) = c;
+    ucln ++;
 
-  if (*(bar = (scrn + (y * sx) + x)) != (foo = him_getpixel (x, y, -1)))
-    {
-      *bar = foo;
-      torep (x, y);
-    }
+  if (SDL_MUSTLOCK ((*(layers + l))))
+    SDL_LockSurface (*(layers + l));
+
+  if (c == -1)
+    c = 0xff;
+    
+  putpixel (*(layers + l), x, y, c);
+
+  if (SDL_MUSTLOCK ((*(layers + l))))
+    SDL_UnlockSurface (*(layers + l));
+
+  torep (x, y);
  
   if (him_dirmode)
     him_repaint ();
-
-  if (opt_v && (c == 0) && (l != 7) && (l != 0))
-    printf ("him_pixel (): warning: color set to 0 (layer %d)\n", l);
  
   return 0;
 }
@@ -259,9 +371,14 @@ him_putpixel (x, y, c)
 
   if ((ucln & 2) == 0)
     ucln += 2;
-    
-  vga_setcolor (c);
-  vga_drawpixel (x, y);
+
+  if (SDL_MUSTLOCK (scr))
+    SDL_LockSurface (scr);
+
+  putpixel (scr, x, y, c);
+
+  if (SDL_MUSTLOCK (scr))
+    SDL_UnlockSurface (scr);
  
   return 0;
 }
@@ -273,33 +390,73 @@ him_getpixel (x, y, l)
 {
   if ((x < 0) || (y < 0) || (x >= sx) || (y >= sy) || (l < -2) || (l > sl))
     return -2;
-  
+   
   if (l == -1)
     {
-      int foo, baz;
-      for (foo = (sl - 1); foo >= 0; foo--)
+      int foo;
+      Uint8 bar = 0, baz;
+      
+      for (foo = 0; foo < sl; foo++)
         {
-          baz = *((*(layers + foo)) + (y * sx) + x);
+          SDL_UpdateRect (layers[foo], 0, 0, 0, 0);
+          
+          if (SDL_MUSTLOCK ((*(layers + foo))))
+            SDL_LockSurface (*(layers + foo));
+ 
+          baz = getpixel (*(layers + foo), x, y);
+ 
+          if (SDL_MUSTLOCK ((*(layers + foo))))
+            SDL_UnlockSurface (*(layers + foo));
+
 #ifdef TANK
-          if ((foo == 1) && (baz == opt_col_wtr) && (rand () % 2) && (*((*(layers + foo)) + (y * sx) + x) > 0))
-            baz = *((*(layers + foo)) + (y * sx) + x);   /* these two lines (.-1,.) and the extern int opt_col_wtr make water and clouds 50% transparent in case of sun/moon/star behind */
+          if (bar && (((foo == 1) && (baz == opt_col_wtr)) || (foo == 2)) && (rand () % 2))
+            baz = bar;   /* these two lines (.-1,.) and the extern int opt_col_wtr make water and clouds 50% transparent in case of sun/moon/star behind */
 #endif
-          if (baz != -1)
-            return baz;
+
+          if (baz != 0xff)
+            bar = baz;
         }
-      return 0;
+      return bar;
     }
   else if (l == -2)
     {
-      int foo, bar = 0;
+      int foo;
+      Uint8 bar = 0;
 
       for (foo = 0; foo < sl; foo++)
-        bar += (((*(*(layers + foo) + (y * sx) + x)) == -1) ? 0 : (pwr (2, foo)));
-      
-      return bar;
+        {
+          SDL_UpdateRect (layers[foo], 0, 0, 0, 0);
+          
+          if (SDL_MUSTLOCK ((*(layers + foo))))
+            SDL_LockSurface (*(layers + foo));
+
+          bar += ((getpixel (*(layers + foo), x, y) == 0xff) ? 0 : (pwr (2, foo)));
+
+          if (SDL_MUSTLOCK ((*(layers + foo))))
+            SDL_UnlockSurface (*(layers + foo));
+        }
+
+      return (int) bar;
     }
   else
-    return *((*(layers + l)) + (y * sx) + x);
+    {
+      Uint8 foo;
+      
+      SDL_UpdateRect (layers[l], 0, 0, 0, 0);
+          
+      foo = getpixel (*(layers + l), x, y);
+
+      if (SDL_MUSTLOCK ((*(layers + l))))
+        SDL_LockSurface (*(layers + l));
+
+      if (SDL_MUSTLOCK ((*(layers + l))))
+        SDL_UnlockSurface (*(layers + l));
+
+      if (foo == 0xff)
+        return -1;
+
+      return (int) foo;
+    }
 }
 
 
@@ -322,7 +479,7 @@ him_uline (x1, y1, x2, y2, c, l, f)
 
       for (n = ((dy < 1) ? -1 : 1); y1 != y2; y1 += n)
         m += ((*f) (x1, y1, c, l));
-   
+
       return m;
     }
       
@@ -450,7 +607,7 @@ him_ufullcircle (x, y, r, c, l, f)
   
   if ((r < 0) || (l < -1) || (l > sl) || (c < -1) || (c >= sc))
     return -1;
-
+    
   for (xx = (r / 4); xx < r; xx++)
     {
       float yy;
@@ -490,7 +647,7 @@ him_ufullcircler (x, y, r1, r2, c, l, f)
       r2 = n;
       n = 0;
     }
-
+    
   for (xx = 0; xx < r2; xx++)
     {
       int y1, y2;
@@ -499,7 +656,7 @@ him_ufullcircler (x, y, r1, r2, c, l, f)
       
       n += him_uline (x - xx, y - y1, x - xx, y - y2, c, l, f);
       n += him_uline (x - xx, y + y1, x - xx, y + y2, c, l, f);
-    
+
       n += him_uline (x + xx, y - y1, x + xx, y - y2, c, l, f);
       n += him_uline (x + xx, y + y1, x + xx, y + y2, c, l, f);
     }
@@ -566,34 +723,57 @@ him_filledtriangle (x1, y1, x2, y2, x3, y3, c, l)
 void
 him_repaint ()
 {
-  static int curc = ~0;
+  if (rb == NULL)
+    return;
 
+  if (SDL_MUSTLOCK (scr) && (SDL_LockSurface (scr) < 0))
+    return;
+          
   while (rb != NULL)
     {
       struct reps *ra;
       ra = rb;
       rb = rb->nxt;
-
-      if (curc != *(scrn + (ra->y * sx) + ra->x))
-        vga_setcolor (curc = *(scrn + (ra->y * sx) + ra->x));
-      vga_drawpixel (ra->x, ra->y);
       
+      putpixel (scr, ra->x, ra->y, him_getpixel (ra->x, ra->y, -1));
+
       free (ra);
     }
+
+  if (SDL_MUSTLOCK (scr))
+    SDL_UnlockSurface (scr);
+
+  SDL_UpdateRect (scr, 0, 0, 0, 0);
 }
 
 
 void
 him_keykill ()
 {
-  while (him_getkey ());
+/* NOT NEEDED */
 }
 
 
 int
 him_getkey ()
 {
-  return vga_getkey ();
+  SDL_Event ev;
+  
+  while (SDL_PollEvent (&ev))
+    {
+      switch (ev.type)
+        {
+          case SDL_KEYDOWN:
+            return (ev.key.keysym.sym);  /* usually works but not well - Shift+a doesnt return 'A' but ?, 'a' */
+            break;
+          case SDL_KEYUP:
+            break;
+          case SDL_QUIT:  /* just returns escape - clumsy but works */
+            return 27;
+        }
+    }
+
+  return 0;
 }
 
 
@@ -601,10 +781,16 @@ void
 him_setpalette (c, r, g, b)
     int c, r, g, b;
 {
-  if ((c < 0) || (c >= sc))
+  SDL_Color color;
+
+  if ((c < 0) || (c >= sc) || (r < 0) || (g < 0) || (b < 0) || (r > 255) || (g > 255) || (b > 255))
     return;
-    
-  vga_setpalette (c, r, g, b);
+
+  color.r = r;
+  color.g = g;
+  color.b = b;
+
+  SDL_SetColors (scr, &color, c, 1);
 }
 
 
@@ -614,8 +800,10 @@ him_getpalette (c, r, g, b)
 {
   if ((c < 0) || (c >= sc))
     return;
-    
-  vga_getpalette (c, r, g, b);
+
+  *r = scr->format->palette->colors[c].r;
+  *g = scr->format->palette->colors[c].g;
+  *b = scr->format->palette->colors[c].b;
 }
 
 
@@ -623,10 +811,17 @@ void
 him_getpalvec (s, n, b)
     int s, n, *b;
 {
-  if ((s < 0) || ((s + n) >= sc))
+  int foo;
+
+  if ((s < 0) || (s >= sc) || (n < 0) || ((s + n) >= sc) || (b == NULL))
     return;
     
-  vga_getpalvec (s, n, b);
+  for (foo = 0; foo < n; foo++)
+    {
+      *(b + (3 * foo)) = scr->format->palette->colors[s + foo].r;
+      *(b + (3 * foo) + 1) = scr->format->palette->colors[s + foo].g;
+      *(b + (3 * foo) + 2) = scr->format->palette->colors[s + foo].b;
+    }
 }
 
 
@@ -634,17 +829,139 @@ void
 him_setpalvec (s, n, b)
     int s, n, *b;
 {
-  if ((s < 0) || ((s + n) >= sc))
+  int foo;
+  SDL_Color *col;
+
+  if ((s < 0) || (s >= sc) || (n < 0) || ((s + n) >= sc) || (b == NULL))
     return;
-    
-  vga_setpalvec (s, n, b);
+  
+  col = (SDL_Color *) calloc (n, sizeof (SDL_Color));
+  
+  for (foo = 0; foo < n; foo++)
+    {
+      col[foo].r = *(b + (3 * foo));
+      col[foo].g = *(b + (3 * foo) + 1);
+      col[foo].b = *(b + (3 * foo) + 2);
+    }
+  
+  SDL_SetColors (scr, col, s, n);
+  
+  free (col);
+}
+
+
+/* TODO implement all keys, not just the ones I use in tank */
+int
+h__sk2SK (key)
+   SDLKey key;
+{
+  switch (key)
+    {
+      case SDLK_q: 
+        return SCANCODE_Q;
+      case SDLK_w:
+        return SCANCODE_W;
+      case SDLK_e:
+        return SCANCODE_E;
+      case SDLK_r:
+        return SCANCODE_R;
+      case SDLK_a:
+        return SCANCODE_A;
+      case SDLK_s:
+        return SCANCODE_S;
+      case SDLK_d:
+        return SCANCODE_D;
+      case SDLK_f:
+        return SCANCODE_F;
+      case SDLK_z:
+        return SCANCODE_Z;
+      case SDLK_x:
+        return SCANCODE_X;
+      case SDLK_c:
+        return SCANCODE_C;
+      case SDLK_v:
+        return SCANCODE_V;
+      case SDLK_u:
+        return SCANCODE_U;
+      case SDLK_i:
+        return SCANCODE_I;
+      case SDLK_o:
+        return SCANCODE_O;
+      case SDLK_p:
+        return SCANCODE_P;
+      case SDLK_h:
+        return SCANCODE_H;
+      case SDLK_j:
+        return SCANCODE_J;
+      case SDLK_k:
+        return SCANCODE_K;
+      case SDLK_l:
+        return SCANCODE_L;
+      case SDLK_b:
+        return SCANCODE_B;
+      case SDLK_n:
+        return SCANCODE_N;
+      case SDLK_m:
+        return SCANCODE_M;
+      case SDLK_COMMA:
+        return SCANCODE_COMMA;
+      case SDLK_RETURN:
+        return SCANCODE_ENTER;
+      case SDLK_SPACE:
+        return SCANCODE_SPACE;
+      case SDLK_ESCAPE:
+        return SCANCODE_ESCAPE;
+      case SDLK_UP:
+        return SCANCODE_CURSORBLOCKUP;
+      case SDLK_DOWN:
+        return SCANCODE_CURSORBLOCKDOWN;
+      case SDLK_LEFT:
+        return SCANCODE_CURSORBLOCKLEFT;
+      case SDLK_RIGHT:
+        return SCANCODE_CURSORBLOCKRIGHT;
+      case SDLK_BACKQUOTE:
+        return SCANCODE_GRAVE;
+      default:
+        return 0;
+    }
 }
 
 
 int
 him_keyupd ()
 {
-  return keyboard_update ();
+  int waz = 0;
+  SDL_Event ev;
+  
+  while (SDL_PollEvent (&ev))
+    {
+      int foo;
+      switch (ev.type)
+        {
+          case SDL_KEYDOWN:
+            foo = h__sk2SK (ev.key.keysym.sym);
+            if (foo)
+              {
+                keyz[foo] = 1;
+                waz++;
+              }
+            break;
+          case SDL_KEYUP:
+            foo = h__sk2SK (ev.key.keysym.sym);
+            if (foo)
+              {
+                keyz[foo] = 0;
+                waz++;
+              }
+            break;
+          case SDL_QUIT:  /* just sets escape - clumsy but works */
+            waz++;
+            keyz[1] = 1;
+            break;
+        }
+    }
+  
+  return waz;
 }
 
 
@@ -652,9 +969,8 @@ int
 him_keypr (key)
     int key;
 {
-  return keyboard_keypressed (key);
+  return keyz[key];
 }
-
 
 
 void
@@ -675,38 +991,50 @@ torep (x, y)
 }
 
 
-int
-him_showimg(char *fn)
+Uint8
+getpixel (surface, x, y)
+    SDL_Surface *surface;
+    int x, y;
 {
-	(void) fn;
-	return -1; /* only in paintSDL */
+  return *((Uint8 *) surface->pixels + (surface->pitch * y) + x);
+}
+
+
+void
+putpixel (surface, x, y, pixel)
+    SDL_Surface *surface;
+    int x, y;
+    Uint32 pixel;
+{
+  *((Uint8 *)surface->pixels + (surface->pitch * y) + x) = pixel;
 }
 
 
 void
 him_putlock (void)
 {
-  /* only in paintSDL */
+  if (SDL_MUSTLOCK (scr))
+    SDL_LockSurface (scr);
 }
+
 
 void
 him_putulock (void)
 {
-  /* only in paintSDL */
+  if (SDL_MUSTLOCK (scr))
+    SDL_UnlockSurface (scr);
 }
+
 
 void
 him_putupd (void)
 {
-  /* only in paintSDL */
+  SDL_UpdateRect (scr, 0, 0, 0, 0);
 }
 
 
 unsigned int
 him_getnow(void)
 {
-	struct timeval tv;
-
-	gettimeofday(&tv, NULL);
-	return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+	return SDL_GetTicks();
 }

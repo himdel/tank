@@ -1,13 +1,7 @@
 tank
 
-A real-time tank-shooting game with two tanks, for SDL and svgalib.
+A real-time tank-shooting game with two tanks, for SDL.
 
-Originally written on a i486 notebook (33MHz, 8 MB RAM) running Linux (kernel 2.4.26, egcs-2.90.29, libc5), needs about 16MB of memory.
-
-Contributions are of course very welcome.
-
-So far, the only contribution was the contrib/TNKb.png file (converted
-from the .gif original by me) from Petr Schreiber. Thanks!
 
 Layers (8):
 0 - stars & sun & moon
