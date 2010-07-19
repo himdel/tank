@@ -1,3 +1,68 @@
+2010
+	* merged 0.8a, 0.8e and a 0.8a fork, but not the 0.8d debug stuff, some changes here are not in the code
+	* this ChangLog is only historical now, for new changes, see git log
+
+
+2005-08-28 18:35:48:	himdel
+	* tank-0.8e released
+	* added scripts/tgz.sh
+
+2005-08-27 00:04:34:	himdel
+//	* fixed the debug trace system:
+//	* some functions didnt call debug_add but did _out, so we used to forget where we are
+//	* changed the format of trace dump to func per line and added number
+//	* added warnings about debug_out&add count mismatch
+
+2005-08-26 21:46:42:	himdel
+//	* -DDEBUG no longer in Makefiles but in debug.h
+//	* that way you controll everything by just including debug.h or 
+
+2005-08-23 19:38:23:	himdel
+//	* tank-0.8d released - a debug release
+//	@ debug.[ch] added
+//	* -DDEBUG in Makefiles
+//	* each func has debug_add(NAME) and debug_out - don't forget to call BEFORE return
+
+2005-08-23 17:58:58:	himdel
+	* umm, another SDL problem. I'm stupid and don't know how to handle strings. Sorry.
+
+2005-08-23 14:54:28:	himdel
+	* tank-0.8c released (SDL keyboard fix version)
+
+2005-08-22 21:00:22:	himdel
+	* added tank08B.png to contrib	(my thanks to Petr Schreiber!)
+	* also recieved a bugreport -> most of it follows as solved bugs :)
+	@ removed unused timezone from paint.c - didn't compile under gcc4 --std=c99
+	* all keys should work now under SDL too (bug in h__sk2SK)
+//	* moved images to pic/ => @ him_showimg assumes pic/, Makefile.wine too
+
+2005-08-20 22:44:30:	himdel
+//	* minor corrections to win/Makefile.wine and win/zip.sh
+	* when changing version number, do it just in Makefile and README and add an entry to ChangeLog
+
+2005-08-20 22:08:39:	himdel
+	* tank-0.8b released
+//	* added win/Makefile.wine to compile using wine
+//	* winzip target to Makefile
+
+2005-08-20 21:25:08:	himdel
+	* define to enable land2 added
+	* land2 generator works ok now
+	* struct playa p[2] is global now => changed headers of functions that use it
+	* keys: p0 (rdfg TAB), p1 (arrows 0)
+	* killed dostuff - moved to main loop
+
+2005-08-19 23:20:56:	himdel
+	* colored arrows, score and energy bars
+
+2005-08-19 23:19:27:	himdel
+	* windows related fix: moved echo from Makefile to genload.pl
+	* changed version number to tank-0.8b
+
+
+2005-08-19 23:09:27:	himdel
+	* tank-0.8a released
+
 2005-08-19 21:01:43:	himdel
 	* land slides no longer buggy (used to duplicate land)
 	* land is heavier than water
