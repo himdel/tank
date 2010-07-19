@@ -13,4 +13,4 @@ double sqr (double);
 double near (int, int, int, int);
 int max (int, int);
 int min (int, int);
-int getline (FILE *, char *, int);
+int hgetline (FILE *, char *, int);

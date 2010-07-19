@@ -15,10 +15,10 @@ pwr (a, b)
     int a, b;
 {
   int c = 1, d;
-  
+
   for (d = 0; d < b; d++)
     c *= a; 
-  
+
   return (c);
 }
 
@@ -29,11 +29,11 @@ itoaH (i)
 {
   int sign, foo = 0;
   char *s;
- 
-  s = (char *) malloc (16); 
+
+  s = (char *) malloc (16);
   if (s == NULL)
     return (s);
-  
+
   sign = (i > 0) ? 1 : -1;
   i *= sign;
 
@@ -50,7 +50,7 @@ itoaH (i)
     }
 
   s[foo] = 0;
-  
+
   reverse (s, foo);
   return (s); 
 }
@@ -108,7 +108,7 @@ near (x1, y1, x2, y2)
 
   dx = abs (x2 - x1);
   dy = abs (y2 - y1);
-  
+
   return sqrt (sqr ((double) dx) + sqr ((double) dy));
 }
 
@@ -130,13 +130,13 @@ min (a, b)
 
 
 int
-getline (fp, s, max)
+hgetline (fp, s, max)
     FILE *fp;
     char *s;
     int max;
 {
   char c;
-  
+
   s[max] = 0;
   c = fgetc (fp);
   while ((c != EOF) && (c != '\n'))
@@ -146,6 +146,6 @@ getline (fp, s, max)
       c = fgetc (fp);
     }
   *s = 0;
-  
+
   return c;
 }

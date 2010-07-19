@@ -140,7 +140,7 @@ opt_load (void)
       return;
     }
   
-  while (getline (fp, fn, 64) != EOF)
+  while (hgetline (fp, fn, 64) != EOF)
     {
 #include "opt_load"
     }
