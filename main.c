@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include "SDL.h"
 
 #include "paint.h"
 #include "letters.h"
@@ -142,30 +143,30 @@ main (void)
 {
 	struct playa p[2];
 
-	printf ("tank\nMartin HRADIL\nhttp://github.com/himdel/tank\n\n");
-	opt_init ();  /* set or load options */
+	printf("tank\nMartin HRADIL\nhttp://github.com/himdel/tank\n\n");
+	opt_init();  /* set or load options */
 
-	if (him_init (SCR_X, SCR_Y, SCR_C, 8, 1) == -1)   /* initialize graphics || die */
-	exit (1);
+	if (him_init(SCR_X, SCR_Y, SCR_C, 8) == -1)   /* initialize graphics || die */
+		return 1;
 
-	atexit (him_destroy);
+	atexit(him_destroy);
 
-	letters_init (NULL);  /* initialize text-writing routines */
+	letters_init(NULL);  /* initialize text-writing routines */
 
-	srand (time (NULL));
+	srand(time(NULL));
 
-	him_clrscr ();
-	water_init ();
+	him_clrscr();
+	water_init();
 
-	nc = (rand () % 6) + 2;
-	c = (struct spos *) calloc (nc, sizeof (struct spos));
+	nc = (rand() % 6) + 2;
+	c = calloc(nc, sizeof(struct spos));
 
 	expb = (struct expl *) NULL;
 	shoo = (struct shootp *) NULL;
 	lndpt = (struct lndpts *) NULL;
 
-	wrtwrd (247, 232, "GENERATING TERRAIN", 12, 0, 7);
-	him_repaint ();
+	wrtwrd(247, 232, "GENERATING TERRAIN", 12, 0, 7);
+	him_repaint();
 
 	paint_stars(opt_num_stars);   /* paints stars */
 	gen_paint_land();   /* generates and paints land */
@@ -179,13 +180,13 @@ main (void)
 	p[0].l = p[1].l = opt_ilives;
 	p[0].e = p[1].e = opt_iwe;
 
-	paint_tanx (p[0].x, p[0].a, p[1].x, p[1].a);   /* paints tanks */
+	paint_tanx(p[0].x, p[0].a, p[1].x, p[1].a);   /* paints tanks */
 
-	show_arrows (p[0].x, p[1].x);
-	showscore (p);
+	show_arrows(p[0].x, p[1].x);
+	showscore(p);
 
 	wrtwrd (247, 232, "GENERATING TERRAIN", -1, -1, 7);
-	him_repaint ();
+	him_repaint();
 
 	while ((p[0].l > 0) && (p[1].l > 0)) {   /* main loop */
 		unsigned int now = him_getnow();
@@ -199,33 +200,33 @@ main (void)
 			t++;
 		}
 
-		checkkeys (p);
-		showebar (p[0].e, p[1].e);
-		him_repaint ();
+		checkkeys(p);
+		showebar(p[0].e, p[1].e);
+		him_repaint();
 	}
 
 	if ((p[0].l <= 0) && (p[1].l <= 0))
-		printf ("\ngame quit\n");
+		printf("\ngame quit\n");
 	else if (p[0].l <= 0)
-		printf ("\nplayer 1 wins!\n");
+		printf("\nplayer 2 wins!\n");
 	else
-		printf ("\nplayer 0 wins!\n");
+		printf("\nplayer 1 wins!\n");
 
-	water_destroy ();
-	while ((shoo = freeso (shoo)) != NULL)
+	water_destroy();
+	while ((shoo = freeso(shoo)) != NULL)
 		;
 	while (expb != NULL) {
 		struct expl *ex;
 		ex = expb;
 		expb = expb->nxt;
-		free (ex);
+		free(ex);
 	}
-	free (c);
+	free(c);
 
-	letters_destroy ();   /* free font */
-	him_destroy ();       /* free graphics */
+	letters_destroy();   /* free font */
+	him_destroy();       /* free graphics */
 
-	exit (0);   /* die */
+	return 0;
 }
 
 
@@ -400,141 +401,140 @@ showscore (p)
 
 
 void
-checkkeys (p)
-    struct playa *p;
+checkkeys(struct playa *p)
 {
-  int n = 0;
-  static int ps = 0, pe = 0;
+	int n = 0;
+	static int ps = 0, pe = 0;
 
-  him_keyupd();
+	him_keyupd();
 
-  if (him_keypr (SCANCODE_Q))
+  if (him_keypr(SDLK_q))
     {
       p[0].a = (p[0].a + 1) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_R))
-   {
+  if (him_keypr(SDLK_r))
+    {
       p[0].a = (p[0].a + 255) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_E))
+  if (him_keypr(SDLK_e))
     {
       p[0].p = (p[0].p + 1) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_W))
+  if (him_keypr(SDLK_w))
     {
       p[0].p = (p[0].p + 255) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_A))
+  if (him_keypr(SDLK_a))
     {
       p[0].a = (p[0].a + 4) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_F))
+  if (him_keypr(SDLK_f))
    {
       p[0].a = (p[0].a + 252) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_D))
+  if (him_keypr(SDLK_d))
     {
       p[0].p = (p[0].p + 4) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_S))
+  if (him_keypr(SDLK_s))
     {
       p[0].p = (p[0].p + 252) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_Z))
+  if (him_keypr(SDLK_z))
     {
       p[0].a = (p[0].a + 16) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_V))
+  if (him_keypr(SDLK_v))
    {
       p[0].a = (p[0].a + 240) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_C))
+  if (him_keypr(SDLK_c))
     {
       p[0].p = (p[0].p + 16) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_X))
+  if (him_keypr(SDLK_x))
     {
       p[0].p = (p[0].p + 240) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_T))
+  if (him_keypr(SDLK_t))
     {
       p[0].a = (128 - p[0].a);
       n++;
     }
-  
-  if (him_keypr (SCANCODE_U))
+
+  if (him_keypr(SDLK_u))
     {
       p[1].a = (p[1].a + 1) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_P))
-   {
+  if (him_keypr(SDLK_p))
+    {
       p[1].a = (p[1].a + 255) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_O))
+  if (him_keypr(SDLK_o))
     {
       p[1].p = (p[1].p + 1) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_I))
+  if (him_keypr(SDLK_i))
     {
       p[1].p = (p[1].p + 255) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_H))
+  if (him_keypr(SDLK_h))
     {
       p[1].a = (p[1].a + 4) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_L))
+  if (him_keypr(SDLK_l))
    {
       p[1].a = (p[1].a + 252) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_K))
+  if (him_keypr(SDLK_k))
     {
       p[1].p = (p[1].p + 4) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_J))
+  if (him_keypr(SDLK_j))
     {
       p[1].p = (p[1].p + 252) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_B))
+  if (him_keypr(SDLK_b))
     {
       p[1].a = (p[1].a + 16) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_COMMA))
+  if (him_keypr(SDLK_COMMA))
     {
       p[1].a = (p[1].a + 240) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_M))
+  if (him_keypr(SDLK_m))
     {
       p[1].p = (p[1].p + 16) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_N))
+  if (him_keypr(SDLK_n))
     {
       p[1].p = (p[1].p + 240) % 256;
       n++;
     }
-  if (him_keypr (SCANCODE_Y))
+  if (him_keypr(SDLK_y))
     {
       p[1].a = (128 - p[1].a);
       n++;
@@ -546,15 +546,15 @@ checkkeys (p)
       showscore (p);
     }
 
-  if (him_keypr (SCANCODE_ESCAPE))
+  if (him_keypr(SDLK_ESCAPE))
     p[0].l = p[1].l = 0;
 
-  if (him_keypr (SCANCODE_ENTER))
+  if (him_keypr(SDLK_RETURN))
     pe++;
   else
     pe = 0;
 
-  if (him_keypr (SCANCODE_SPACE))
+  if (him_keypr(SDLK_SPACE))
     ps++;
   else
     ps = 0;
