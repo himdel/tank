@@ -221,14 +221,13 @@ water_land (lmhs)
 }
 
 
-int
+void
 rewater ()
 {
   int x, y;
-  int ret = 0;
   
   if (!opt_rewater)
-    return 0;
+    return;
     
   for (x = 0; x < 640; x++)
     if (wtr[x])
@@ -240,27 +239,22 @@ rewater ()
             {
               swh (x - 1, y);
               rwh (x, wtr[x]);
-              ret = 1;
             }
 
           if ((x < 639) && (him_getpixel (x + 1, y, 1) == -1) && (gwh (x, y) >= 0))
             {
               swh (x + 1, y);
               rwh (x, wtr[x]);
-              ret = 1;
             }
           
           if ((c = him_getpixel (x, y, 1)) == -1)
             {
               swh (x, y);
               rwh (x, wtr[x]);
-              ret = 1;
             }
           else if (c == opt_col_land)
             break;
         }
-
-  return ret;
 }
 
 
