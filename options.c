@@ -37,7 +37,6 @@ int opt_ilives;
 int opt_cloudangry;
 int opt_num_stars;
 int opt_v;
-int opt_num_bt;
 int opt_lndsld;
 int opt_max_ltforks;
 int opt_rewater;
@@ -60,8 +59,6 @@ opt_init (void)
   opt_cloudangry = 2048; /* # of cloudpixels to touch to get a cloud angry (0 - disable) */
   opt_num_stars = 256; /* # of stars */
   opt_v = 2; /* (bool) verbose */
-  opt_num_bns = 0; /* # bonuses */
-  opt_num_bt = 0; /* # types bns */
   opt_lndsld = 1; /* (bool) land slides */
   opt_max_ltforks = 128; /* max number of forks for 1 lightning */
   opt_rewater = 1; /* (bool) activates adjusting water after each explosion */
@@ -80,7 +77,6 @@ opt_init (void)
   opt_col_wtr = 1;  /* blue */
   opt_col_sun = 14;  /* yellow */
   opt_col_moon = 15;  /* white */
-  opt_col_bns = 14;  /* yellow */
   opt_col_lt = 9;  /* lightblue */
   
 /*

@@ -26,7 +26,6 @@ extern int opt_ilives;
 extern int opt_cloudangry;
 extern int opt_num_stars;
 extern int opt_v;
-extern int opt_num_bt;
 extern int opt_lndsld;
 extern int opt_max_ltforks;
 extern int opt_rewater;
