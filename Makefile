@@ -42,10 +42,10 @@ bonus.o: bonus.c bonus.h options.h paint.h general.h
 menu.o: menu.c menu.h paint.h options.h letters.h general.h gui.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-opt_save: options.h
+opt_save: options.h scripts/gensave.pl
 	perl scripts/gensave.pl < $< > $@
 
-opt_load: options.h
+opt_load: options.h scripts/genload.pl
 	perl scripts/genload.pl < $< > $@
 
 gui.o: gui.c gui.h paint.h letters.h general.h
