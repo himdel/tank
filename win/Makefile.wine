@@ -1,0 +1,2 @@
+WIN_LIBS = -mwindows -lmingw32 -lSDLmain -lSDL -liberty -lm -lSDL_image
+WIN_CFLAGS = -Dmain=SDL_main
