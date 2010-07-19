@@ -1,0 +1,221 @@
+=== modified file 'main.c'
+--- main.c	2009-12-13 20:31:43 +0000
++++ main.c	2009-12-15 03:29:54 +0000
+@@ -156,8 +156,8 @@
+ 	{10, do_fire, 0},
+ 	{20, do_expl, 0},
+ 	{100, do_light, 0},
+-	{62, do_land, 0},
+-	{500, rewater, 0},
++	{62, (void (*) (struct playa *)) do_land, 0},
++	{500, (void (*) (struct playa *)) rewater, 0},
+ 	{0, NULL, 0}
+ };
+=== modified file 'options.c'
+--- options.c	2009-12-13 19:22:59 +0000
++++ options.c	2009-12-15 03:50:14 +0000
+@@ -102,85 +102,58 @@
+ }
+ 
+ 
++#define DBG(X) fprintf(stderr, "debug: X = %s ( %s +%d )\n", #X, __FILE__, __LINE__)
++
++static char *
++getcfg()
++{
++	char *fn;
++#ifdef LINUX
++	int len = snprintf(NULL, 0, "%s/.tank", getenv("HOME"));
++	fn = calloc(len, sizeof(char));
++	snprintf(fn, len, "%s/.tank", getenv("HOME"));
++	DBG(fn);
++#else
++	fn = strdup("tank.cfg");
++#endif
++	return fn;
++}
++
+ void
+ opt_load (void)
+ {
+-  FILE *fp;
+-  char *fn;
+-  
+-#ifdef LINUX
+-  {
+-    char *ffn;
+-    int len;
+-    
+-    ffn = getenv ("HOME");
+-
+-    fn = (char *) calloc ((len = strlen (ffn)) + 7, sizeof (char));
+-    strcpy (fn, ffn);
+-    free (ffn);
+-    
+-    ffn = fn + len;
+-    strcpy (ffn, "/.tank");
+-    ffn[6] = 0;
+-  }
+-#else
+-  fn = "tank.cfg";
+-#endif
+-  
+-  fp = fopen (fn, "r");
+-  free (fn);
+-  
+-  if (fp == NULL)
+-    return;
+-  
+-  fn = (char *) malloc (65);
+-  if (fn == NULL)
+-    {
+-      fclose (fp);
+-      return;
+-    }
+-  
+-  while (hgetline (fp, fn, 64) != EOF)
+-    {
++	char *fn = getcfg();
++	FILE *fp = fopen(fn, "r");
++	free(fn);
++
++	if (fp == NULL)
++		return;
++
++	fn = malloc(65);
++	if (fn == NULL) {
++		fclose(fp);
++		return;
++	}
++
++	while (hgetline(fp, fn, 64) != EOF) {
+ #include "opt_load"
+-    }
+-  
+-  fclose (fp);
++	}
++
++	fclose(fp);
+ }
+ 
+ 
+ void
+ opt_save (void)
+ {
+-  FILE *fp;
+-  char *fn;
+-  
+-#ifdef LINUX
+-  {
+-    char *ffn;
+-    int len;
+-    
+-    ffn = getenv ("HOME");
++	char *fn = getcfg();
++	FILE *fp = fopen(fn, "w");
++	free(fn);
+ 
+-    fn = (char *) calloc ((len = strlen (ffn)) + 7, sizeof (char));
+-    strcpy (fn, ffn);
+-    free (ffn);
+-    
+-    ffn = fn + len;
+-    strcpy (ffn, "/.tank");
+-    ffn[6] = 0;
+-  }
+-#else
+-  fn = "tank.cfg";
+-#endif
+-  
+-  fp = fopen (fn, "w");
+-  free (fn);
+-  
+-  if (fp == NULL)
+-    return;
++	if (fp == NULL)
++		return;
+ 
+ #include "opt_save"
+ 
+-  fclose (fp);
++	fclose(fp);
+ }
+=== modified file 'TODO'
+--- TODO	2009-12-13 20:31:43 +0000
++++ TODO	2009-12-15 04:08:23 +0000
+@@ -1,32 +1,30 @@
+- tank - a tank game
+- himdel@seznam.cz
+-
+-TODOs:
+-
+-  TODO speed based on time
+-  
+-  TODO gui.[ch]
+-  TODO life (neuplnej zasah te nezabije, jen poskodi, pad treba taky)
+-  TODO split main.c - again - explosions, shots, lightnings
+-  TODO look at water - *S* *L* *O* *W* *S*  *  *D* *O* *W* *N* - even when not doing anything
+-  BUG lightning kdyz zabije uplne (na lives=0) tak v pristi hre pokracuje existovat
+-  
+-  TODO rewater aj nahoru kdyz landslide = 0 (&& rewater properly)
+-  TODO wind & moving clouds
+-  TODO on fire ve water odhodit vzad
+-  TODO 1vNET (SDL_net)
+-  TODO 1vPC
+-
+-  TODO weapons
+-  TODO bonuses lip
+-  TODO mb crater border up a bit (dep on weapon)
+-  TODO meteorites
+-  TODO sound
+-  TODO Faydom (wormne se pres auroru a zacne kostit)
+-  TODO lightning storm sometimes
+-  TODO hidden areas in the air - invisible, with small grav/antigrav field - with powerful bonus or just swap vx with vy
+-  TODO make it real - sun and moon podle aktualniho casu a pozice nastavitelne v menu
+-  TODO configure, ...
+-  TODO console
+-  TODO rain -> floods
+-  TODO paint.c - usr zgv-5.7/src/readpng.c to display PNGs in VGA version too
++- finish options
++
++- speed based on time
++
++- add bonuses
++- gui.[ch]
++- life (neuplnej zasah te nezabije, jen poskodi, pad treba taky)
++- split main.c - again - explosions, shots, lightnings
++- look at water - *S* *L* *O* *W* *S*  *  *D* *O* *W* *N* - even when not doing anything
++! lightning kdyz zabije uplne (na lives=0) tak v pristi hre pokracuje existovat
++
++- rewater aj nahoru kdyz landslide = 0 (&& rewater properly)
++- wind & moving clouds
++- on fire ve water odhodit vzad
++- 1vNET (SDL_net)
++- 1vPC
++
++- weapons
++- bonuses lip
++- mb crater border up a bit (dep on weapon)
++- meteorites
++- sound
++- Faydom (wormne se pres auroru a zacne kostit)
++- lightning storm sometimes
++- hidden areas in the air - invisible, with small grav/antigrav field - with powerful bonus or just swap vx with vy
++- make it real - sun and moon podle aktualniho casu a pozice nastavitelne v menu
++- configure, ...
++- console
++- rain -> floods
++- paint.c - usr zgv-5.7/src/readpng.c to display PNGs in VGA version too
+
+=== modified file 'general.h'
+--- general.h	2009-12-13 19:22:59 +0000
++++ general.h	2009-12-15 04:08:23 +0000
+@@ -3,6 +3,7 @@
+   himdel@seznam.cz
+  */
+ 
++#define DBG(X) fprintf(stderr, "debug: %s = %s ( %s +%d )\n", #X, X, __FILE__, __LINE__)
+ 
+ int pwr (int, int);
+ char *itoaH (int);
+
