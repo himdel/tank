@@ -1,133 +1,22 @@
 tank
 
-Author: Martin Hradil <himdel seznam cz>
-Licence: GNU GPLv2 or later
+A real-time tank-shooting game with two tanks, for SDL and svgalib.
 
-
-A real-time tank-shooting game with two tanks.
-Gamemodes supported: 1v1.
-Works with SDL and SVGALib.
-
-Written on a i486 notebook (33MHz, 8 MB RAM) running Linux
-(kernel 2.4.26, egcs-2.90.29, libc5), and an Pentium II (233MHz,
-128 MB RAM, Slackware 10, kernel 2.6.13-rc4-mm1, gcc-4.0.1, glibc-2.3.4).
-
-As far as I know, it should be portable to anything that can allocate
-enough memory (~ 16MB by now, maybe a bit less), have keyboard in raw
-mode, graphics in 640x480x16 colors and paint a pixel on screen.
-And of course, there is a SDL version (differs only in using paintSDL.c
-instead of paint.c for him_* routines).
-
-
-For installation instructions, see INSTALL.
-For news, see ChangeLog.
-
+Originally written on a i486 notebook (33MHz, 8 MB RAM) running Linux (kernel 2.4.26, egcs-2.90.29, libc5), needs about 16MB of memory.
 
 Contributions are of course very welcome.
 
 So far, the only contribution was the contrib/TNKb.png file (converted
 from the .gif original by me) from Petr Schreiber. Thanks!
 
-
-
-
----
-
-Roadmap:
-
-ChangeLog	- changelog
-INSTALL		- installation instructions
-Makefile	- the makefile
-README		- (look around)
-TODO		- stuff to do
-bonus.[ch]	- bonuses
-expls.[ch]	- explosions
-general.[ch]	- general stuff, like getline, reverse, itoa
-gui.[ch]	- GUI for menus
-icon.bmp	- program icon (for SDL)
-intro.png	- opening screen
-let_fnt.h	- default font (8x16, bin2c'ed)
-letters.[ch]	- letter writing routines
-lightning.[ch]	- lightnings
-main.c		- the main loop
-menu.[ch]	- menus
-menu.png	- main menu background
-netgame.png	- netgame menu background
-options.[ch]	- options
-paint.h		- paint headers	
-paint.c		- paint routines for (S)VGALib
-paintSDL.c	- paint routines for SDL
-scripts/
-    genload.pl	} perl script to generate opt_load / opt_save from
-    gensave.pl	} options.h to be included by options.c
-shots.[ch]	- shots
-vgakeyboard.h	- copied from SVGALib - used by paintSDL.c for keycode
-                                                            translation
-water.[ch]	- water
-weapons.[ch]	- weapons
-
-
----
-
-still-relevant fragments of old version of this file:
-
-The SVGALib version works fast enough on my i486, 8MB RAM and 120MB HDD
-notebook I write it on (just the terrain generation is a bit slow).
-But you should have magic SysRq enabled in your kernel because I didn't
-write any sighandlers and keyboard is in raw mode.
-
-The SDL version works allright now, just a bit slow compared to the
-SVGALib one. It's playable on anything faster than 333MHz
-(make that 1GHz if your SDL output is libcaca).
-
-This version is real-time. Any comments or fixes are welcome.
---> BUG: water is not well written, it's slow and has problems with
-knowing where it's surface is <--
-
-It's licensed under any of BSD, LGPL or GPL licenses. 
-And I don't accept any responsibility me being an irresponsible insane
-child under influence of pretty much anything (including homicidal
-aliens). By compiling or running it you agree you will not sue me for
-anything.
-
----
-
 Layers (8):
 0 - stars & sun & moon
 1 - land & water
 2 - clouds
 3 - rain
-4 - bonuses
 5 - tanks
 6 - shots and lightning
 7 - arrows, text
 
----
-
-Weapons:
-
----
-
-Computer: (AI used) (not working yet)
-
-compfir is called everytime the human fires, it sets the p[pl].*
-and fire ()s
-bruteforce? NO! (too exact (^__^))
-we keep a buffer of previous shots? NO-MEM
-" of N previous shots? SOUNDS OK
-how many then?:
-1? NAH
-2? WELL,
-3? YUP
-
-struct compsht {
-	int a, p, d, id;
-}
-
-struct compshts { 
-	int p;
-	struct compsht **s;
-} cmps;
-
-struct shootp -> compid
-735
+Author: Martin Hradil <himdel seznam cz>
+Licence: GNU GPLv2 or later
