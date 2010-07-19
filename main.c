@@ -131,8 +131,8 @@ struct Tasks {
 	{10, do_fire, 0},
 	{20, do_expl, 0},
 	{100, do_light, 0},
-	{62, do_land, 0},
-	{500, rewater, 0},
+	{62, (void (*) (struct playa *)) do_land, 0},
+	{500, (void (*) (struct playa *)) rewater, 0},
 	{0, NULL, 0}
 };
 
