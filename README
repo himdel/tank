@@ -1,12 +1,12 @@
-tank-0.8a
+tank
 
-DESCRIPTION
+Author: Martin Hradil <himdel seznam cz>
+Licence: GNU GPLv2 or later
+
 
 A real-time tank-shooting game with two tanks.
-Gamemodes supported: 1v1, network game, 1vPC.
+Gamemodes supported: 1v1.
 Works with SDL and SVGALib.
-
-Website: http://himdel.wz.cz/games/tank
 
 Written on a i486 notebook (33MHz, 8 MB RAM) running Linux
 (kernel 2.4.26, egcs-2.90.29, libc5), and an Pentium II (233MHz,
@@ -28,9 +28,6 @@ Contributions are of course very welcome.
 So far, the only contribution was the contrib/TNKb.png file (converted
 from the .gif original by me) from Petr Schreiber. Thanks!
 
-
-Author: Martin Hradil <himdel seznam cz>
-Licence: GNU GPLv2 or later
 
 
 
