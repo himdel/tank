@@ -44,9 +44,7 @@
            free (cmps.s);
            cmps.p = -1;
          }
-+		
        water_destroy ();
-       bns_destroy ();
 -      while ((shoo = freeso (shoo)) != NULL);
 -      while (expb != NULL)
 -        {

@@ -198,12 +198,6 @@ main (void)
       nc = (rand () % 6) + 2;
       c = (struct spos *) calloc (nc, sizeof (struct spos));
   
-      if (bns_init (opt_num_bns) == -1)
-        {
-         perror ("tank");
-         exit (1);
-        }
-
       expb = (struct expl *) NULL;
       shoo = (struct shootp *) NULL;
       lndpt = (struct lndpts *) NULL;
@@ -265,7 +259,6 @@ main (void)
           cmps.p = -1;
         }
       water_destroy ();
-      bns_destroy ();
       while ((shoo = freeso (shoo)) != NULL);
       while (expb != NULL)
         {
@@ -863,9 +856,6 @@ do_fire (p)
                 }
             }
 
-          if (foo & 16)  /* bonuses */
-            bns_hit ((int) (bx + vx), (int) (by + vy));
-    
           if (foo & 32)  /* tanks */
             {
               hsoo->hit = 1;
