@@ -42,6 +42,8 @@ int opt_mwe;
 int opt_rwe;
 
 
+void opt_load();
+
 
 void
 opt_init()
