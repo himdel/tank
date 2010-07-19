@@ -676,10 +676,10 @@ torep (x, y)
 
 
 int
-him_showimg (fn)
-    char *fn;
+him_showimg(char *fn)
 {
-  return -1; /* only in paintSDL */
+	(void) fn;
+	return -1; /* only in paintSDL */
 }
 
 

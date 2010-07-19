@@ -406,8 +406,6 @@ checkkeys (p)
 
   him_keyupd();
 
-  if (him_keypr (SCANCODE_GRAVE));
-
   if (him_keypr (SCANCODE_Q))
     {
       p[0].a = (p[0].a + 1) % 256;

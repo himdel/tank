@@ -191,11 +191,6 @@ him_init (x, y, c, l, rw)
   printf ("\nUsing libraries SDL and SDL_image, licensed under LGPL and\n");
   printf ("downloadable from http://www.libsdl.org/.\n\n");
 
-#ifdef TANK
-  him_showimg ("img/intro.png");
-  sleep (1);
-#endif /* TANK */  
-
   return 0;
 }
 

@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -pedantic -Wall -std=c99 -Wextra
-LIBS = -lm
+CFLAGS = -pedantic -Wall -std=c99 -Wextra -g
+LIBS = -lm -g
 SDLLIBS = `sdl-config --libs` -lSDL_image
 SDLCFLAGS = `sdl-config --cflags`
 
@@ -57,4 +57,4 @@ let_fnt.png: let_fnt.xpm
 
 
 clean:
-	rm -f tank tankSDL opt_save opt_load *.o *~ let_fnt.png let_fnt.xpm let_fnt
+	rm -f tank tankSDL opt_save opt_load *.o *~ let_fnt.png let_fnt.xpm let_fnt core
