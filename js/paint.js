@@ -1,6 +1,4 @@
-/*
-  paint.h - him_painting routines for tank
- */
+// paint - him_painting routines for tank
 
 #include "vgakeyboard.h"
 
@@ -53,15 +51,8 @@ unsigned int him_getnow();
 void him_putlock();
 void him_putulock();
 void him_putupd();
-#include <assert.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 
 #include "general.h"
-#include "paint.h"
 #include "SDL.h"
 
 
@@ -265,11 +256,11 @@ him_clrscr()
           colors[3].r = 0;
           colors[3].g = 168;
           colors[3].b = 168;
-    
+
           colors[4].r = 168;
           colors[4].g = 0;
           colors[4].b = 0;
-    
+
           colors[5].r = 168;
           colors[5].g = 0;
           colors[5].b = 168;
@@ -293,23 +284,23 @@ him_clrscr()
           colors[10].r = 84;
           colors[10].g = 252;
           colors[10].b = 84;
-      
+
           colors[11].r = 84;
           colors[11].g = 252;
           colors[11].b = 252;
-      
+
           colors[12].r = 252;
           colors[12].g = 84;
           colors[12].b = 84;
-      
+
           colors[13].r = 252;
           colors[13].g = 84;
           colors[13].b = 252;
-      
+
           colors[14].r = 252;
           colors[14].g = 252;
           colors[14].b = 84;
-      
+
           colors[15].r = 252;
           colors[15].g = 252;
           colors[15].b = 252;
@@ -329,15 +320,15 @@ him_destroy ()
 
   if (sx == 0)
     return;
-  
+
   if (layers != NULL)
     {
       for (foo = 0; foo < sl; foo++)
-        if (*(layers + foo) != NULL) 
+        if (*(layers + foo) != NULL)
           SDL_FreeSurface (*(layers + foo));
       free (layers);
     }
-  
+
   while (rb != NULL)
     {
       struct reps *ra;
@@ -369,14 +360,14 @@ him_pixel (x, y, c, l)
 
   if (c == -1)
     c = 0xff;
-    
+
   putpixel (*(layers + l), x, y, c);
 
   if (SDL_MUSTLOCK ((*(layers + l))))
     SDL_UnlockSurface (*(layers + l));
 
   torep (x, y);
- 
+
   return 0;
 }
 
@@ -409,21 +400,21 @@ him_getpixel (x, y, l)
 {
   if ((x < 0) || (y < 0) || (x >= sx) || (y >= sy) || (l < -2) || (l > sl))
     return -2;
-   
+
   if (l == -1)
     {
       int foo;
       Uint8 bar = 0, baz;
-      
+
       for (foo = 0; foo < sl; foo++)
         {
           SDL_UpdateRect (layers[foo], 0, 0, 0, 0);
-          
+
           if (SDL_MUSTLOCK ((*(layers + foo))))
             SDL_LockSurface (*(layers + foo));
- 
+
           baz = getpixel (*(layers + foo), x, y);
- 
+
           if (SDL_MUSTLOCK ((*(layers + foo))))
             SDL_UnlockSurface (*(layers + foo));
 
@@ -445,7 +436,7 @@ him_getpixel (x, y, l)
       for (foo = 0; foo < sl; foo++)
         {
           SDL_UpdateRect (layers[foo], 0, 0, 0, 0);
-          
+
           if (SDL_MUSTLOCK ((*(layers + foo))))
             SDL_LockSurface (*(layers + foo));
 
@@ -460,9 +451,9 @@ him_getpixel (x, y, l)
   else
     {
       Uint8 foo;
-      
+
       SDL_UpdateRect (layers[l], 0, 0, 0, 0);
-          
+
       foo = getpixel (*(layers + l), x, y);
 
       if (SDL_MUSTLOCK ((*(layers + l))))
@@ -501,7 +492,7 @@ him_uline (x1, y1, x2, y2, c, l, f)
 
       return m;
     }
-      
+
   if (dy == 0)
     {
       int n;
@@ -511,12 +502,12 @@ him_uline (x1, y1, x2, y2, c, l, f)
 
       return m;
     }
-      
+
   if (abs(dx) == abs(dy))
     {
       int sy = dy / abs (dy);
       int sx = dx / abs (dx);
-      
+
       for (dx = 0; dx <= abs (dy); dx++)
         m += ((*f) (x1 + (dx * sx), y1 + (dx * sy), c, l));
 
@@ -525,7 +516,7 @@ him_uline (x1, y1, x2, y2, c, l, f)
 
   if (abs(dx) > abs(dy))
     {
-      int xx; 
+      int xx;
       int sy = dy / abs (dy);
       int sx = dx / abs (dx);
 
@@ -537,7 +528,7 @@ him_uline (x1, y1, x2, y2, c, l, f)
 
   if (abs(dy) > abs(dx))
     {
-      int yy; 
+      int yy;
       int sy = dy / abs (dy);
       int sx = dx / abs (dx);
 
@@ -545,7 +536,7 @@ him_uline (x1, y1, x2, y2, c, l, f)
         m += ((*f) (x1 + roundH (sx * yy * ((float) abs (dx) / (float) abs (dy))), y1 + (yy * sy), c, l));
       return m;
     }
-  
+
   return -2;
 }
 
@@ -588,9 +579,9 @@ him_circle (x, y, r, c, l)
   for (xx = (r / 4); xx < r; xx++)
     {
       float yy;
-      
+
       yy = sqrt ((r * r) - ((r - xx) * (r - xx)));
-      
+
       n += him_pixel (x - r + xx, (int) (y - yy), c, l);
       n += him_pixel (x - r + xx, (int) (y + yy), c, l);
       n += him_pixel (x + r - xx, (int) (y - yy), c, l);
@@ -600,7 +591,7 @@ him_circle (x, y, r, c, l)
       n += him_pixel ((int) (x + yy), y - r + xx, c, l);
       n += him_pixel ((int) (x - yy), y + r - xx, c, l);
       n += him_pixel ((int) (x + yy), y + r - xx, c, l);
-      
+
       if (n < 0)
         return -1;
     }
@@ -609,7 +600,7 @@ him_circle (x, y, r, c, l)
   n += him_pixel (x - r, y, c, l);
   n += him_pixel (x, y + r, c, l);
   n += him_pixel (x, y - r, c, l);
-  
+
   if (n < 0)
     return -1;
 
@@ -623,15 +614,15 @@ him_ufullcircle (x, y, r, c, l, f)
     int (*f) (int, int, int, int);
 {
   int xx, n = 0;
-  
+
   if ((r < 0) || (l < -1) || (l > sl) || (c < -1) || (c >= sc))
     return -1;
-    
+
   for (xx = (r / 4); xx < r; xx++)
     {
       float yy;
       yy = sqrt ((r * r) - ((r - xx) * (r - xx)));
-      
+
       n += him_uline (x - r + xx, (int) (y - yy), x - r + xx, (int) (y + yy), c, l, f);
       n += him_uline (x + r - xx, (int) (y - yy), x + r - xx, (int) (y + yy), c, l, f);
 
@@ -655,7 +646,7 @@ him_ufullcircler (x, y, r1, r2, c, l, f)
     int (*f) (int, int, int, int);
 {
   int xx, n = 0;
-  
+
   if ((r1 < 0) || (r2 < 0) || (l < -1) || (l > sl) || (c < -1) || (c >= sc))
     return -1;
 
@@ -666,13 +657,13 @@ him_ufullcircler (x, y, r1, r2, c, l, f)
       r2 = n;
       n = 0;
     }
-    
+
   for (xx = 0; xx < r2; xx++)
     {
       int y1, y2;
       y2 = (int) sqrt ((r2 * r2) - (xx * xx));
       y1 = ((xx > r1) ? (0) : ((int) sqrt ((r1 * r1) - (xx * xx))));
-      
+
       n += him_uline (x - xx, y - y1, x - xx, y - y2, c, l, f);
       n += him_uline (x - xx, y + y1, x - xx, y + y2, c, l, f);
 
@@ -697,16 +688,16 @@ him_filledtriangle (x1, y1, x2, y2, x3, y3, c, l)
    int x1, y1, x2, y2, x3, y3, c, l;
 {
   int x0, y0, n = 0;
-  
+
   x0 = (x1 + x2 + x3) / 3;
   y0 = (y1 + y2 + y3) / 3;
-  
+
   while ((near (x1, y1, x0, y0) > 1) || (near (x2, y2, x0, y0) > 1) || (near (x3, y3, x0, y0) > 1))
     {
       n += him_line (x1, y1, x2, y2, c, l);
       n += him_line (x1, y1, x3, y3, c, l);
       n += him_line (x3, y3, x2, y2, c, l);
-      
+
       if (x0 > x1)
         x1++;
       if (x0 < x1)

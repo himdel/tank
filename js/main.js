@@ -1,10 +1,4 @@
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <time.h>
 #include "SDL.h"
-
 #include "paint.h"
 #include "letters.h"
 #include "options.h"
@@ -246,7 +240,7 @@ paint_stars (n)
 
   for (foo = 0; foo < n; foo++)
     him_pixel (rand () % SCR_X, rand () % SCR_Y, opt_col_star, 0);
-  
+
   if ((rand () % 3) > 1)
     him_ufullcircle (rand () % SCR_X, rand () % 240, 32, opt_col_sun, 0, &him_pixel);
 }
@@ -260,7 +254,7 @@ gen_paint_land ()	/* std bezier land */
 
   px = (int *) malloc (opt_lndpts * sizeof (int));
   py = (int *) malloc (opt_lndpts * sizeof (int));
- 
+
   if ((px == NULL) || (py == NULL))
     {
       free (c);
@@ -282,8 +276,8 @@ gen_paint_land ()	/* std bezier land */
       if (lmhs[foo] < 0)
         lmhs[foo] = 0;
       if (lmhs[foo] >= SCR_Y)
-        lmhs[foo] = SCR_Y - 1; 
-    
+        lmhs[foo] = SCR_Y - 1;
+
       if (foo)
         him_uline (foo - opt_jmp, lmhs[foo - opt_jmp], foo, lmhs[foo], opt_col_land, 1, &gplnd);
     }
@@ -293,10 +287,10 @@ gen_paint_land ()	/* std bezier land */
   if (lmhs[SCR_X - 1] < 0)
     lmhs[SCR_X - 1] = 0;
   if (lmhs[SCR_X - 1] > SCR_Y - 1)
-    lmhs[SCR_X - 1] = SCR_Y - 1; 
-    
+    lmhs[SCR_X - 1] = SCR_Y - 1;
+
   him_uline (foo - opt_jmp, lmhs[foo - opt_jmp], SCR_X - 1, lmhs[SCR_X - 1], opt_col_land, 1, &gplnd);
-  
+
   free (px);
   free (py);
 }
@@ -307,7 +301,7 @@ gen_paint_clouds (n)
     int n;
 {
   int foo;
-  
+
   for (foo = 0; foo < n; foo++)
     {
       cloud (c + foo);
@@ -648,20 +642,20 @@ do_fire (p)
           vx = hsoo->vx;
           vy = hsoo->vy;
 
-          bx += vx; 
-          by += vy; 
+          bx += vx;
+          by += vy;
 
           if (opt_varg)
             vy += (0.002 * ((SCR_X - lmhs[(int) bx]) / ((double) SCR_X)));
           else
             vy += 0.001;
-    
+
           if (opt_airres)
             {
               vx *= 0.9995;
               vy *= 0.9995;
             }
-    
+
           if (bx >= SCR_X)
             {
               if (opt_mirror)
@@ -684,7 +678,7 @@ do_fire (p)
               vy = -vy;
             }
 
-          if (by < 0) 
+          if (by < 0)
             {
               if (opt_mirror0)
                 vy = -vy;
@@ -699,14 +693,14 @@ do_fire (p)
               him_pixel ((int) bx, (int) by, opt_col_shot0, 6);
               addshpx (hsoo, bx, by);
             }
-  
+
           foo = him_getpixel ((int) (bx + vx), (int) (by + vy), -2);
 
           if (foo < 1)
             foo = 0;
-      
+
           foo = foo & 0x36;
-      
+
           if (foo & 2)  /* land & water */
             {
               if (him_getpixel ((int) (bx + vx), (int) (by + vy), 1) == opt_col_land)
@@ -721,7 +715,7 @@ do_fire (p)
                   int bar = lmhs[(int) (bx + vx)] - getwl ((int) (bx + vx));
                   vx *= 0.99 - (((float) bar) / 24000.0);
                   vy *= 0.99 - (((float) bar) / 24000.0);
-                }  
+                }
             }
 
           if (foo & 4)  /* clouds */
@@ -729,7 +723,7 @@ do_fire (p)
               int a;
               struct spos *b;
               unsigned int d;
-              
+
               if (him_getpixel ((int) (bx + vx), (int) (by + vy), 2) == opt_col_cloud)
                 {
                   vx *= 0.985;
@@ -739,8 +733,8 @@ do_fire (p)
                 {
                   vx *= 0.996;
                   vy *= 0.996;
-                }  
-              
+                }
+
               /* lightning */
               if (opt_cloudangry)
                 {
@@ -778,17 +772,17 @@ do_fire (p)
               showscore (p);
               addexplpnt ((int) (bx + vx), (int) (by + vy), 16);
             }
-          
+
           hsoo->vx = vx;
           hsoo->vy = vy;
         }
-      
+
       if ((hsoo->shon > 128) || (hsoo->hit && hsoo->shon))
-        {  
+        {
           him_pixel ((int) hsoo->shob->x, (int) hsoo->shob->y, -1, 6);
           hsoo->shob = frees (hsoo->shob, &(hsoo->shon));
         }
- 
+
       hsoo = hsoo->nxt;
     } /* end of fire */
 }
@@ -812,7 +806,7 @@ do_expl (p)
       if ((exxp->c) >= ((float) exxp->p))
         {
           struct expl *exxxp;
- 
+
           if ((abs (exxp->x - p[0].x) < 24) || (abs (exxp->x - p[1].x) < 24))
             {
               paint_tanx (p[0].x, p[0].a, p[1].x, p[1].a);
@@ -822,13 +816,13 @@ do_expl (p)
 
           if (exxp->pre != NULL)
             exxp->pre->nxt = exxp->nxt;
-          
+
           if (exxp->nxt != NULL)
             exxp->nxt->pre = exxp->pre;
-            
+
           if (exxp == expb)
             expb = expb->nxt;
-          
+
           exxxp = exxp->nxt;
           free (exxp);
           exxp = exxxp;
@@ -836,7 +830,7 @@ do_expl (p)
       else
         exxp = exxp->nxt;
     } /* end of explosion */
-}  
+}
 
 
 void
@@ -861,33 +855,33 @@ do_light (p)
         else
           {
             int bar;
-          
+
             cur->nc = ((lt->numforks < opt_max_ltforks) ? ((rand () % 3) + 1) : 0);
             cur->c = (struct lght **) calloc (cur->nc, sizeof (struct lght *));
-            
+
             for (bar = 0; bar < cur->nc; bar++)
               {
                 struct lght *fux;
                 int d, px, py;
                 double a;
-                
-                lt->numforks++;        
-              
+
+                lt->numforks++;
+
                 cur->c[bar] = fux = (struct lght *) malloc (sizeof (struct lght));
                 if ((foo == 0) && (bar == 0))
                   lt->ls = fux;
 
                 px = p[lt->w].x;
                 py = (getwl (px) ? min(lmhs[px] - 8, getwl (px)) : (lmhs[px] - 8));
-                
+
                 d = near (cur->x, cur->y, px, py);
                 a = acos (((float) (abs (cur->y - py) * ((cur->x > px) ? (-1) : (1)))) / ((float) d));
-              
+
                 a += (((float) ((rand () % 101) - 50)) / 200.0) * (1.0 + (16.0 / (float) (d + 1)));
                 if (d < 32)
                   d *= 2;
                 d /= 3;
-                 
+
                 fux->h = 0;
                 fux->nc = 0;
 
@@ -901,7 +895,7 @@ do_light (p)
                     fux->x = cur->x + (rand () % 31) - 15;
                     fux->y = cur->y + (rand () % 31) - 15;
                   }
-                  
+
                 if (fux->x < 0)
                   {
                     fux->x = 0;
@@ -922,15 +916,15 @@ do_light (p)
                     fux->y = SCR_Y - 1;
                     fux->h = 1;
                   }
-              
+
                 fux->p = lt->lp;
                 fux->n = (struct lght *) NULL;
                 lt->lp->n = fux;
                 lt->lp = fux;
-                
+
                 fux->u = cur;
                 fux->c = (struct lght **) NULL;
-              
+
                 if (him_getpixel (fux->x, fux->y, 1) == opt_col_land)
                   {
                     fux->h = 1;
@@ -954,20 +948,20 @@ do_light (p)
                     showscore (p);
                     addexplpnt (fux->x, fux->y, 16);
                   }
- 
+
                 him_line (cur->x, cur->y, fux->x, fux->y, opt_col_lt, 6);
               }
 
             foo++;
             cur = cur->n;
           }
-      
+
       if (foo == 0)
         {
           struct lghtt *xx;
-          
+
           light_depaint (lt->lb);
-          
+
           while (lt->lb)
             {
               struct lght *ll;
@@ -975,21 +969,21 @@ do_light (p)
               lt->lb = lt->lb->n;
               free (ll);
             }
- 
+
           if (lt->n != NULL)
             lt->n->p = lt->p;
 
           if (lt->p != NULL)
             lt->p->n = lt->n;
-          
+
           if (lt == lghtb)
             lghtb = lghtb->n;
-            
+
           xx = lt->n;
           free (lt);
           lt = xx;
         }
-      else  
+      else
         lt = lt->n;
     }
 }
@@ -1004,16 +998,16 @@ do_land (void)
     return;
 
   /* land slide */
-  
+
   lnd = lndpt;
   if ((lnd != NULL) && lndrnd(him_getnow() - lnd->tm))
   	lnd = lnd->n;
-  
+
   while (lnd != NULL)
     {
       struct lndpts *ko;
       int foo;		/* used in lndstf macro */
-      
+
 #define lndstf(x,y,t)		/* x, y, target x delta */	\
       if (((x) > 0) && ((x) < SCR_X - 1)			\
       && ((x) + (t) > 0) && ((x) + (t) < SCR_X - 1)		\
@@ -1028,7 +1022,7 @@ do_land (void)
           if (him_getpixel ((x), (y) - 1, 1) == opt_col_land) 	\
             addlndpt ((x), (y) - 1); 				\
         }
-          
+
       lndstf(lnd->x, lnd->y, 0);
 
       if (rand() % 2) {
@@ -1040,18 +1034,18 @@ do_land (void)
           else
         lndstf(lnd->x, lnd->y, 1);
       }
-        
+
       if (lnd->p != NULL)
         lnd->p->n = lnd->n;
       if (lnd->n != NULL)
         lnd->n->p = lnd->p;
       if (lndpt == lnd)
         lndpt = lnd->n;
-      
+
       ko = lnd;
       lnd = lnd->n;
       free (ko);
-      
+
       if ((lnd != NULL) && lndrnd(him_getnow() - lnd->tm))
         lnd = lnd->n;
     }
@@ -1064,10 +1058,10 @@ struct shotp
     int *i;
 {
   struct shotp *m;
- 
+
   if (n == NULL)
     return NULL;
- 
+
   m = n->nxt;
   free (n);
   *i -= 1;
@@ -1080,10 +1074,10 @@ struct shootp
     struct shootp *n;
 {
   struct shootp *m;
- 
+
   if (n == NULL)
     return NULL;
- 
+
   m = n->nxt;
   while ((n->shob = frees (n->shob, &(n->shon))) != NULL);
   free (n);
@@ -1103,14 +1097,14 @@ addshpx (d, x, y)
   foo = (struct shotp *) calloc (1, sizeof (struct shotp));
   if (foo == NULL)
     return;
-    
+
   foo->nxt = NULL;
 
   if (d->shol != NULL)
     d->shol->nxt = foo;
 
   d->shol = foo;
-  
+
   if (d->shob == NULL)
     d->shob = foo;
 
@@ -1134,8 +1128,8 @@ addexplpnt (x, y, p)
     y = SCR_Y - 1;
   if (y < 0)
     y = 0;
-    
-  a = (struct expl *) malloc (sizeof (struct expl));  
+
+  a = (struct expl *) malloc (sizeof (struct expl));
   if (a == NULL)
     return;
 
@@ -1158,7 +1152,7 @@ bezier (x, p, px, py, t)
 {
   float *bx, *by;
   int foo;
-  
+
   if (p == 0)
     return ~0;
 
@@ -1170,11 +1164,11 @@ bezier (x, p, px, py, t)
       bx[foo] = (float) px[foo];
       by[foo] = (float) py[foo];
     }
-  
+
   for (foo = p - 1; foo > 0; foo--)
     {
       int bar;
-      
+
       for (bar = 0; bar < foo; bar++)
         {
           bx[bar] = bx[bar] + ((bx[bar + 1] - bx[bar]) * ((float) x / (float) t));
@@ -1213,13 +1207,13 @@ px_hole (x, y, c, l)
     int x, y, c, l;
 {
   int foo;
- 
+
   foo = him_pixel (x, y, c, l);
   wtr_hole (x, y);
-  
+
   if (foo != 0)
     return foo;
-  
+
   if (him_getpixel (x, y - 1, 1) == opt_col_land)
     addlndpt (x, y - 1);
 
@@ -1229,9 +1223,9 @@ px_hole (x, y, c, l)
         y = SCR_Y - 1;
         break;
       }
-     
+
   lmhs[x] = y - 1;
-  
+
   return 0;
 }
 
@@ -1241,19 +1235,19 @@ px_cloud (x, y, c, l)
      int x, y, c, l;
 {
   int xx, yy, n = 0;
-  
+
   if (!((x + y) % 2))
     return 0;
-  
+
   xx = x + (rand () % 3) - 1;
   yy = y + (rand () % 3) - 1;
-  
+
   n += him_pixel (xx, yy, c, l);
   n += him_pixel (xx + 1, yy, opt_col_ca, l);
   n += him_pixel (xx - 1, yy, opt_col_ca, l);
   n += him_pixel (xx, yy + 1, opt_col_ca, l);
   n += him_pixel (xx, yy - 1, opt_col_ca, l);
-  
+
   return n;
 }
 
@@ -1264,10 +1258,10 @@ cloud (cc)
 {
   int foo, *px, *py;
   float sc;
-  
+
   cc->x = (rand () % 384) + 128;
   cc->a = 0;
-  
+
   foo = (getwl (cc->x) ? (getwl (cc->x)) : (lmhs[cc->x]));
   if (foo < 64)
     {
@@ -1405,15 +1399,15 @@ addlndpt (x, y)
 
 void showebar (int p0, int p1)
 {
-	static int a = 0, b = 0;
-	if (p0 != a) {
-		him_box (SCR_X - 1 - (p0 * 128 / opt_mwe), SCR_Y - 32, SCR_X - 1,                        SCR_Y - 17, opt_col_p1, 7);
-		him_box (SCR_X - 128,                      SCR_Y - 32, SCR_X - 2 - (p0 * 128 / opt_mwe), SCR_Y - 17, -1, 7);
-		a = p0;
-	}
-	if (p1 != b) {
-		him_box (SCR_X - 1 - (p1 * 128 / opt_mwe), SCR_Y - 16, SCR_X - 1,                        SCR_Y - 1, opt_col_p2, 7);
-		him_box (SCR_X - 128,                      SCR_Y - 16, SCR_X - 2 - (p1 * 128 / opt_mwe), SCR_Y - 1, -1, 7);
-		b = p1;
-	}
+  static int a = 0, b = 0;
+  if (p0 != a) {
+    him_box (SCR_X - 1 - (p0 * 128 / opt_mwe), SCR_Y - 32, SCR_X - 1,                        SCR_Y - 17, opt_col_p1, 7);
+    him_box (SCR_X - 128,                      SCR_Y - 32, SCR_X - 2 - (p0 * 128 / opt_mwe), SCR_Y - 17, -1, 7);
+    a = p0;
+  }
+  if (p1 != b) {
+    him_box (SCR_X - 1 - (p1 * 128 / opt_mwe), SCR_Y - 16, SCR_X - 1,                        SCR_Y - 1, opt_col_p2, 7);
+    him_box (SCR_X - 128,                      SCR_Y - 16, SCR_X - 2 - (p1 * 128 / opt_mwe), SCR_Y - 1, -1, 7);
+    b = p1;
+  }
 }

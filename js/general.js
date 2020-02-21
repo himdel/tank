@@ -1,7 +1,4 @@
-/*
-  general.c - general routines for fonted
- */
-
+// general routines for fonted
 
 int pwr (int, int);
 char *itoaH (int);
@@ -13,15 +10,6 @@ double near (int, int, int, int);
 int max (int, int);
 int min (int, int);
 int hgetline (FILE *, char *, int);
-/*
-  general.c - general routines for fonted
- */
-
-
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "general.h"
 
 
 int
@@ -31,7 +19,7 @@ pwr (a, b)
   int c = 1, d;
 
   for (d = 0; d < b; d++)
-    c *= a; 
+    c *= a;
 
   return (c);
 }
@@ -66,7 +54,7 @@ itoaH (i)
   s[foo] = 0;
 
   reverse (s, foo);
-  return (s); 
+  return (s);
 }
 
 

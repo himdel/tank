@@ -1,6 +1,4 @@
-/*
- options.h - options for tank
- */
+// options - options for tank
 
 extern int opt_lndpts;
 extern int opt_jmp;
@@ -37,14 +35,7 @@ extern void opt_save();
  options.c - options for tank
  */
 
-
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "general.h"
-#include "options.h"
 
 
 int opt_lndpts;

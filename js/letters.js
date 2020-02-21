@@ -1,9 +1,4 @@
-/*
-  letters.h - letter writing routines for tank
- */
-
-extern int letters_fontH;
-
+// letters - letter writing routines for tank
 
 /* filename or NULL to use default font */
 int letters_init (char *);
@@ -14,15 +9,9 @@ void wrtltr (int, int, int, int, int, int);
 void wrtltrzoom (int, int, int, int, int, int, int);
 void wrtwrd (int, int, char*, int, int, int);
 void wrtint (int, int, int, int, int, int);
-/*
-  letters.c - letter writing routines for tank
- */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "general.h"
 #include "paint.h"
-#include "letters.h"
 #include "let_fnt.h"
 
 
@@ -41,21 +30,21 @@ letters_init (fn)
       font = font_default;
     }
   else
-    {  
+    {
       FILE *fp;
       long foo;
-  
+
       fp = fopen (fn, "r");
       if (fp == NULL)
         {
           printf ("letters_init (): failed to open file %s\n", fn);
           return 0;
         }
-  
+
       fseek (fp, 0, SEEK_END);
       foo = ftell (fp);
       rewind (fp);
-  
+
       font = (unsigned char *) malloc (foo);
       if (font == NULL)
         {
@@ -64,7 +53,7 @@ letters_init (fn)
           return 0;
         }
       letters_fontH = foo / 256;
-    
+
       fread (font, 1, foo, fp);
       fclose (fp);
     }
@@ -89,10 +78,10 @@ wrtltr (x, y, c, f, b, l)
      char c;
 {
   register int xx, yy;
-  
+
   if (l < 0)
     for (xx = 0; xx < 8; xx++)
-      for (yy = 0; yy < letters_fontH; yy++)          
+      for (yy = 0; yy < letters_fontH; yy++)
         {
           register int col;
           col = (font[(c * letters_fontH) + yy] & pwr (2, 7 - xx)) ? f : b;
@@ -101,7 +90,7 @@ wrtltr (x, y, c, f, b, l)
         }
   else
     for (xx = 0; xx < 8; xx++)
-      for (yy = 0; yy < letters_fontH; yy++)          
+      for (yy = 0; yy < letters_fontH; yy++)
         {
           register int col;
           col = (font[(c * letters_fontH) + yy] & pwr (2, 7 - xx)) ? f : b;
@@ -118,7 +107,7 @@ wrtltrzoom (x, y, c, z, f, b, l)
 {
   int xx, yy;
   register int m, n;
-  
+
   for (xx = 0, m = x; xx < 8; xx++, m += z)
     for (yy = 0, n = y; yy < letters_fontH; yy++, n += z)
       him_box (m, n, m + z - 1, n + z - 1, ((font[(c * letters_fontH) + yy] & pwr (2, 7 - xx)) ? f : b), l);

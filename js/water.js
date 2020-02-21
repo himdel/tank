@@ -1,7 +1,4 @@
-/*
-  water.h - water routines for tank
- */
-
+// water - water routines for tank
 
 void water_init (void);
 void water_destroy (void);
@@ -10,9 +7,8 @@ void water_land (int *);
 void rewater (void);
 int getwl (int);
 void wtr_hole (int, int);
+
 /*
-  water.c - water routines for tank
-  
   the formula is: p = g * r * h
   p - pressure (Pa = N / m^2)
   g - gravitational acceleration (= 10  N / kg)
@@ -21,12 +17,7 @@ void wtr_hole (int, int);
  */
 
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "paint.h"
-#include "water.h"
 #include "options.h"
 #include "general.h"
 
@@ -44,7 +35,7 @@ struct pts
     int x, y;
     struct pts *n, *p;
   };
- 
+
 int wtr[640];    /* water levels */
 int *wtrh;     /* water pressures */
 
@@ -54,7 +45,7 @@ void
 water_init ()
 {
   int foo;
-  
+
   printf ("water_init: .");
   printf (".");
   wtrh = (int *) calloc (640 * 480, sizeof (int));
@@ -84,13 +75,13 @@ water_land (lmhs)
 
   for (foo = 0; foo < 640; foo++)
     wtr[foo] = 0;
-  
+
   lpb = lpt = (struct pts *) malloc (sizeof (struct pts));
   if (lpt == NULL)
     return;
   lpt->y = 0;
   lpt->n = NULL;
-  
+
   hpb = hpt = (struct pts *) malloc (sizeof (struct pts));
   if (hpt == NULL)
     {
@@ -99,13 +90,13 @@ water_land (lmhs)
     }
   hpt->y = 480;
   hpt->n = NULL;
-  
+
 
 /* find lowpoints and highpoints : */
 
   bar = lmhs[1];
-  
-  for (foo = 0; foo < 640; foo++)    
+
+  for (foo = 0; foo < 640; foo++)
     {
       if (bar < lmhs[foo])
         {
@@ -150,7 +141,7 @@ water_land (lmhs)
         {
           lpt = lpb;
           hpt = hpb;
-          
+
           while (lpt != NULL)
             {
               lpb = lpt;
@@ -165,16 +156,16 @@ water_land (lmhs)
               free (hpb);
             }
         }
-        
+
       bar = lmhs[foo];
     }
-  
-  
+
+
 /* find valleys and foreach: water level = ((3 * (min(hp0, hp1) - lp)) / 4) */
 
   lpt = lpb;
   hpt = hpb;
-  
+
   while ((lpt != NULL) && (hpt != NULL))
     {
       int h0, h0x, h1, h1x, l;
@@ -197,13 +188,13 @@ water_land (lmhs)
         {
           h1 = hpt->y;
           h1x = hpt->x;
-        }        
+        }
       else
         {
           h1 = 0;
           h1x = 639;
         }
-        
+
       l = (3 * (lpt->y - max (h0, h1))) / 4;
       if (opt_v)
         printf ("valley: center (%d, %d); level = %d; h0 (%d, %d); h1 (%d, %d)\n", lpt->x, lpt->y, l, h0x, h0, h1x,h1);
@@ -217,8 +208,8 @@ water_land (lmhs)
       lpt = lpt->n;
       free (lpb);
     }
-  
-  
+
+
 /* paint: */
 
   for (foo = 0; foo < 640; foo++)
@@ -236,10 +227,10 @@ void
 rewater ()
 {
   int x, y;
-  
+
   if (!opt_rewater)
     return;
-    
+
   for (x = 0; x < 640; x++)
     if (wtr[x])
       for (y = wtr[x]; y < 480; y++)
@@ -257,7 +248,7 @@ rewater ()
               swh (x + 1, y);
               rwh (x, wtr[x]);
             }
-          
+
           if ((c = him_getpixel (x, y, 1)) == -1)
             {
               swh (x, y);
@@ -302,9 +293,9 @@ swh (x, y)
       while ((y < 480) && (wtrh[(y * 640) + x] >= 0))
         wtrh[(y++ * 640) + x] = ++c;
     }
-  else 
+  else
     wtrh[(y * 640) + x] = y - wtr[x];
-  
+
   return wtrh[(y * 640) + x];
 }
 
@@ -314,18 +305,18 @@ rwh (x, y)
    int x, y;
 {
   int c = -1;
-  
+
   if (gwh (x, y) == -1)
     return;
-  
+
   if (wtr[x] == y)
     wtr[x] = y + 1;
-    
+
   wtrh[(y * 640) + x] = -1;
   him_pixel (x, y++, -1, 1);
 
   while ((y < 480) && (wtrh[(y * 640) + x] >= 0))
-    wtrh[(y++ * 640) + x] = c++;  
+    wtrh[(y++ * 640) + x] = c++;
 
 /*  while ((gwh (x, wtr[x]) == -1) && (wtr[x] < 480))
     wtr[x] += 1;   --DOESNT SEEM TO HELP */
