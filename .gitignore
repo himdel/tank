@@ -1,0 +1,12 @@
+.*.sw[po]
+*~
+
+/tank
+*.o
+core
+
+/opt_save
+/opt_load
+/let_fnt
+/let_fnt.png
+/let_fnt.xpm
