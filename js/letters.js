@@ -130,8 +130,5 @@ void
 wrtint (x, y, i, f, b, l)
      int x, y, i, f, b, l;
 {
-  char *s;
-  s = itoaH (i);
-  wrtwrd (x, y, s, f, b, l);
-  free (s);
+  wrtwrd (x, y, i.toString(), f, b, l);
 }

@@ -1,6 +1,5 @@
 // general routines for fonted
 
-char *itoaH (int);
 void reverse (char *, int);
 void getstr (char *, int);
 int roundH (double);
@@ -9,40 +8,6 @@ double near (int, int, int, int);
 int max (int, int);
 int min (int, int);
 int hgetline (FILE *, char *, int);
-
-
-
-char *
-itoaH (i)
-     int i;
-{
-  int sign, foo = 0;
-  char *s;
-
-  s = (char *) malloc (16);
-  if (s == NULL)
-    return (s);
-
-  sign = (i > 0) ? 1 : -1;
-  i *= sign;
-
-  while (i)
-    {
-      s[foo++] = (i % 10) + '0';
-      i /= 10;
-    }
-
-  if (sign == -1)
-    {
-      s[foo] = (foo == 0) ? '0' : '-';
-      foo++;
-    }
-
-  s[foo] = 0;
-
-  reverse (s, foo);
-  return (s);
-}
 
 
 void
