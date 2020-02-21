@@ -22,7 +22,7 @@
 
 struct playa
   {
-    int x, a, p, l, e;		/* tank X coord, angle, power, lives, weap energy */
+    int x, a, p, l, e;    /* tank X coord, angle, power, lives, weap energy */
   };
 
 struct spos
@@ -82,7 +82,7 @@ int nc;  /* num clouds */
 
 
 void paint_stars (int);
-void gen_paint_land (void);	/* std bezier land */
+void gen_paint_land (void);  /* std bezier land */
 void gen_paint_clouds (int);
 void bonuses (void);
 void paint_tanx (int, int, int, int);
@@ -117,17 +117,17 @@ void showebar (int, int);
 
 
 struct Tasks {
-	unsigned int ms;
-	void (*func) (struct playa *);
-	unsigned int last;		/* init to 0 please */
+  unsigned int ms;
+  void (*func) (struct playa *);
+  unsigned int last;    /* init to 0 please */
 } tsk[] = {
-	{1000, do_we, 0},
-	{10, do_fire, 0},
-	{20, do_expl, 0},
-	{100, do_light, 0},
-	{62, (void (*) (struct playa *)) do_land, 0},
-	{500, (void (*) (struct playa *)) rewater, 0},
-	{0, NULL, 0}
+  {1000, do_we, 0},
+  {10, do_fire, 0},
+  {20, do_expl, 0},
+  {100, do_light, 0},
+  {62, (void (*) (struct playa *)) do_land, 0},
+  {500, (void (*) (struct playa *)) rewater, 0},
+  {0, NULL, 0}
 };
 
 
@@ -135,92 +135,92 @@ struct Tasks {
 int
 main (void)
 {
-	struct playa p[2];
+  struct playa p[2];
 
-	printf("tank\nMartin HRADIL\nhttp://github.com/himdel/tank\n\n");
-	opt_init();  /* set or load options */
+  printf("tank\nMartin HRADIL\nhttp://github.com/himdel/tank\n\n");
+  opt_init();  /* set or load options */
 
-	if (him_init(SCR_X, SCR_Y, SCR_C, 8) == -1)   /* initialize graphics || die */
-		return 1;
+  if (him_init(SCR_X, SCR_Y, SCR_C, 8) == -1)   /* initialize graphics || die */
+    return 1;
 
-	atexit(him_destroy);
+  atexit(him_destroy);
 
-	letters_init(NULL);  /* initialize text-writing routines */
+  letters_init(NULL);  /* initialize text-writing routines */
 
-	srand(time(NULL));
+  srand(time(NULL));
 
-	him_clrscr();
-	water_init();
+  him_clrscr();
+  water_init();
 
-	nc = (rand() % 6) + 2;
-	c = calloc(nc, sizeof(struct spos));
+  nc = (rand() % 6) + 2;
+  c = calloc(nc, sizeof(struct spos));
 
-	expb = (struct expl *) NULL;
-	shoo = (struct shootp *) NULL;
-	lndpt = (struct lndpts *) NULL;
+  expb = (struct expl *) NULL;
+  shoo = (struct shootp *) NULL;
+  lndpt = (struct lndpts *) NULL;
 
-	wrtwrd(247, 232, "GENERATING TERRAIN", 12, 0, 7);
-	him_repaint();
+  wrtwrd(247, 232, "GENERATING TERRAIN", 12, 0, 7);
+  him_repaint();
 
-	paint_stars(opt_num_stars);   /* paints stars */
-	gen_paint_land();   /* generates and paints land */
-	water_land(lmhs);   /* fill valleys with water */
-	gen_paint_clouds(nc);  /* generates and paints clouds */
+  paint_stars(opt_num_stars);   /* paints stars */
+  gen_paint_land();   /* generates and paints land */
+  water_land(lmhs);   /* fill valleys with water */
+  gen_paint_clouds(nc);  /* generates and paints clouds */
 
-	p[0].x = (rand() % 288) + 16;       /* generates positions */
-	p[1].x = (rand() % 288) + 336;
-	p[0].a = 32; p[1].a = 96;    /* sets angles, forces and lives */
-	p[0].p = p[1].p = 127;
-	p[0].l = p[1].l = opt_ilives;
-	p[0].e = p[1].e = opt_iwe;
+  p[0].x = (rand() % 288) + 16;       /* generates positions */
+  p[1].x = (rand() % 288) + 336;
+  p[0].a = 32; p[1].a = 96;    /* sets angles, forces and lives */
+  p[0].p = p[1].p = 127;
+  p[0].l = p[1].l = opt_ilives;
+  p[0].e = p[1].e = opt_iwe;
 
-	paint_tanx(p[0].x, p[0].a, p[1].x, p[1].a);   /* paints tanks */
+  paint_tanx(p[0].x, p[0].a, p[1].x, p[1].a);   /* paints tanks */
 
-	show_arrows(p[0].x, p[1].x);
-	showscore(p);
+  show_arrows(p[0].x, p[1].x);
+  showscore(p);
 
-	wrtwrd (247, 232, "GENERATING TERRAIN", -1, -1, 7);
-	him_repaint();
+  wrtwrd (247, 232, "GENERATING TERRAIN", -1, -1, 7);
+  him_repaint();
 
-	while ((p[0].l > 0) && (p[1].l > 0)) {   /* main loop */
-		unsigned int now = him_getnow();
-		struct Tasks *t = tsk;
+  while ((p[0].l > 0) && (p[1].l > 0)) {   /* main loop */
+    unsigned int now = him_getnow();
+    struct Tasks *t = tsk;
 
-		while ((t != NULL) && (t->ms != 0)) {
-			if (t->last + t->ms <= now) {
-				t->func(p);
-				t->last = now;
-			}
-			t++;
-		}
+    while ((t != NULL) && (t->ms != 0)) {
+      if (t->last + t->ms <= now) {
+        t->func(p);
+        t->last = now;
+      }
+      t++;
+    }
 
-		checkkeys(p);
-		showebar(p[0].e, p[1].e);
-		him_repaint();
-	}
+    checkkeys(p);
+    showebar(p[0].e, p[1].e);
+    him_repaint();
+  }
 
-	if ((p[0].l <= 0) && (p[1].l <= 0))
-		printf("\ngame quit\n");
-	else if (p[0].l <= 0)
-		printf("\nplayer 2 wins!\n");
-	else
-		printf("\nplayer 1 wins!\n");
+  if ((p[0].l <= 0) && (p[1].l <= 0))
+    printf("\ngame quit\n");
+  else if (p[0].l <= 0)
+    printf("\nplayer 2 wins!\n");
+  else
+    printf("\nplayer 1 wins!\n");
 
-	water_destroy();
-	while ((shoo = freeso(shoo)) != NULL)
-		;
-	while (expb != NULL) {
-		struct expl *ex;
-		ex = expb;
-		expb = expb->nxt;
-		free(ex);
-	}
-	free(c);
+  water_destroy();
+  while ((shoo = freeso(shoo)) != NULL)
+    ;
+  while (expb != NULL) {
+    struct expl *ex;
+    ex = expb;
+    expb = expb->nxt;
+    free(ex);
+  }
+  free(c);
 
-	letters_destroy();   /* free font */
-	him_destroy();       /* free graphics */
+  letters_destroy();   /* free font */
+  him_destroy();       /* free graphics */
 
-	return 0;
+  return 0;
 }
 
 
@@ -247,7 +247,7 @@ paint_stars (n)
 
 
 void
-gen_paint_land ()	/* std bezier land */
+gen_paint_land ()  /* std bezier land */
 {
   int foo;
   int *px, *py;
@@ -397,10 +397,10 @@ showscore (p)
 void
 checkkeys(struct playa *p)
 {
-	int n = 0;
-	static int ps = 0, pe = 0;
+  int n = 0;
+  static int ps = 0, pe = 0;
 
-	him_keyupd();
+  him_keyupd();
 
   if (him_keypr(SDLK_q))
     {
@@ -601,12 +601,12 @@ fire (p, n)
 
 
 int
-lndrnd (int d) 	/* got time since expl, ret 1/0 - the more time since the surer */
+lndrnd (int d)   /* got time since expl, ret 1/0 - the more time since the surer */
 {
-	int perc, percr;
-	perc = d / 15;
-	percr = rand () % 100;
-	return (percr < perc);
+  int perc, percr;
+  perc = d / 15;
+  percr = rand () % 100;
+  return (percr < perc);
 }
 
 
@@ -1001,36 +1001,36 @@ do_land (void)
 
   lnd = lndpt;
   if ((lnd != NULL) && lndrnd(him_getnow() - lnd->tm))
-  	lnd = lnd->n;
+    lnd = lnd->n;
 
   while (lnd != NULL)
     {
       struct lndpts *ko;
-      int foo;		/* used in lndstf macro */
+      int foo;    /* used in lndstf macro */
 
-#define lndstf(x,y,t)		/* x, y, target x delta */	\
-      if (((x) > 0) && ((x) < SCR_X - 1)			\
-      && ((x) + (t) > 0) && ((x) + (t) < SCR_X - 1)		\
-      && (him_getpixel ((x), (y), 1) == opt_col_land)		\
-      && (((foo = him_getpixel ((x) + (t), (y) + 1, 1)) < 1)	\
-      || (him_getpixel ((x) + (t), (y) + 1, 1) == opt_col_wtr))	\
-      )								\
-        { 							\
-          him_pixel ((x), (y), foo, 1);				\
-          him_pixel ((x) + (t), (y) + 1, opt_col_land, 1);	\
-          addlndpt ((x) + (t), (y) + 1); 			\
-          if (him_getpixel ((x), (y) - 1, 1) == opt_col_land) 	\
-            addlndpt ((x), (y) - 1); 				\
+#define lndstf(x,y,t)    /* x, y, target x delta */  \
+      if (((x) > 0) && ((x) < SCR_X - 1)      \
+      && ((x) + (t) > 0) && ((x) + (t) < SCR_X - 1)    \
+      && (him_getpixel ((x), (y), 1) == opt_col_land)    \
+      && (((foo = him_getpixel ((x) + (t), (y) + 1, 1)) < 1)  \
+      || (him_getpixel ((x) + (t), (y) + 1, 1) == opt_col_wtr))  \
+      )                \
+        {               \
+          him_pixel ((x), (y), foo, 1);        \
+          him_pixel ((x) + (t), (y) + 1, opt_col_land, 1);  \
+          addlndpt ((x) + (t), (y) + 1);       \
+          if (him_getpixel ((x), (y) - 1, 1) == opt_col_land)   \
+            addlndpt ((x), (y) - 1);         \
         }
 
       lndstf(lnd->x, lnd->y, 0);
 
       if (rand() % 2) {
-	lndstf(lnd->x, lnd->y, 1)
+  lndstf(lnd->x, lnd->y, 1)
           else
-	lndstf(lnd->x, lnd->y, -1);
+  lndstf(lnd->x, lnd->y, -1);
       } else {
- 	lndstf(lnd->x, lnd->y, -1)
+   lndstf(lnd->x, lnd->y, -1)
           else
         lndstf(lnd->x, lnd->y, 1);
       }
