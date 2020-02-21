@@ -1,24 +1,10 @@
 // general routines for fonted
 
-void getstr (char *, int);
 int roundH (double);
 double sqr (double);
 double near (int, int, int, int);
 int max (int, int);
 int min (int, int);
-int hgetline (FILE *, char *, int);
-
-
-void
-getstr (s, l)
-     char *s;
-     int l;
-{
-  int c;
-  while (((c = getchar ()) != EOF) && (c != '\n') && l--)
-    *(s++) = c;
-  *s = 0;
-}
 
 
 int
@@ -63,26 +49,4 @@ min (a, b)
     int a, b;
 {
   return ((a < b) ? a : b);
-}
-
-
-int
-hgetline (fp, s, max)
-    FILE *fp;
-    char *s;
-    int max;
-{
-  char c;
-
-  s[max] = 0;
-  c = fgetc (fp);
-  while ((c != EOF) && (c != '\n'))
-    {
-      if (max--)
-        *(s++) = c;
-      c = fgetc (fp);
-    }
-  *s = 0;
-
-  return c;
 }
