@@ -1,6 +1,5 @@
 // general routines for fonted
 
-void reverse (char *, int);
 void getstr (char *, int);
 int roundH (double);
 double sqr (double);
@@ -8,22 +7,6 @@ double near (int, int, int, int);
 int max (int, int);
 int min (int, int);
 int hgetline (FILE *, char *, int);
-
-
-void
-reverse (s, l)
-     char *s;
-     int l;
-{
-  int foo;
-  for (foo = 0; foo < (l / 2); foo ++)
-    {
-      char z;
-      z = s[foo];
-      s[foo] = s[l - 1 - foo];
-      s[l - 1 - foo] = z;
-    }
-}
 
 
 void
