@@ -620,7 +620,7 @@ do_we (p)
   p[1].e = (p[1].e > opt_mwe) ? opt_mwe : p[1].e;
 }
 
-	
+
 void
 do_fire (p)
    struct playa *p;

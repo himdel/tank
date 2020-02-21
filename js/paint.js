@@ -173,23 +173,23 @@ him_init(int x, int y, int c, int l)
 		colors[10].r = 84;
 		colors[10].g = 252;
 		colors[10].b = 84;
-		
+
 		colors[11].r = 84;
 		colors[11].g = 252;
 		colors[11].b = 252;
-		
+
 		colors[12].r = 252;
 		colors[12].g = 84;
 		colors[12].b = 84;
-		
+
 		colors[13].r = 252;
 		colors[13].g = 84;
 		colors[13].b = 252;
-		
+
 		colors[14].r = 252;
 		colors[14].g = 252;
 		colors[14].b = 84;
-		
+
 		colors[15].r = 252;
 		colors[15].g = 252;
 		colors[15].b = 252;
