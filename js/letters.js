@@ -84,7 +84,7 @@ wrtltr (x, y, c, f, b, l)
       for (yy = 0; yy < letters_fontH; yy++)
         {
           register int col;
-          col = (font[(c * letters_fontH) + yy] & pwr (2, 7 - xx)) ? f : b;
+          col = (font[(c * letters_fontH) + yy] & (2 ** (7 - xx))) ? f : b;
           if ((b != -2) || (col == f))
             him_putpixel (x + xx, y + yy, col);
         }
@@ -93,7 +93,7 @@ wrtltr (x, y, c, f, b, l)
       for (yy = 0; yy < letters_fontH; yy++)
         {
           register int col;
-          col = (font[(c * letters_fontH) + yy] & pwr (2, 7 - xx)) ? f : b;
+          col = (font[(c * letters_fontH) + yy] & (2 ** (7 - xx))) ? f : b;
           if ((b != -2) || (col == f))
             him_pixel (x + xx, y + yy, col, l);
         }
@@ -110,7 +110,7 @@ wrtltrzoom (x, y, c, z, f, b, l)
 
   for (xx = 0, m = x; xx < 8; xx++, m += z)
     for (yy = 0, n = y; yy < letters_fontH; yy++, n += z)
-      him_box (m, n, m + z - 1, n + z - 1, ((font[(c * letters_fontH) + yy] & pwr (2, 7 - xx)) ? f : b), l);
+      him_box (m, n, m + z - 1, n + z - 1, ((font[(c * letters_fontH) + yy] & (2 ** (7 - xx))) ? f : b), l);
 }
 
 

@@ -440,7 +440,7 @@ him_getpixel (x, y, l)
           if (SDL_MUSTLOCK ((*(layers + foo))))
             SDL_LockSurface (*(layers + foo));
 
-          bar += ((getpixel (*(layers + foo), x, y) == 0xff) ? 0 : (pwr (2, foo)));
+          bar += ((getpixel (*(layers + foo), x, y) == 0xff) ? 0 : ((2 ** (foo))));
 
           if (SDL_MUSTLOCK ((*(layers + foo))))
             SDL_UnlockSurface (*(layers + foo));

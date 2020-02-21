@@ -1,6 +1,5 @@
 // general routines for fonted
 
-int pwr (int, int);
 char *itoaH (int);
 void reverse (char *, int);
 void getstr (char *, int);
@@ -11,18 +10,6 @@ int max (int, int);
 int min (int, int);
 int hgetline (FILE *, char *, int);
 
-
-int
-pwr (a, b)
-    int a, b;
-{
-  int c = 1, d;
-
-  for (d = 0; d < b; d++)
-    c *= a;
-
-  return (c);
-}
 
 
 char *
