@@ -48,9 +48,6 @@ int him_keypr(int);
 /* a time in ms since start */
 unsigned int him_getnow();
 
-void him_putlock();
-void him_putulock();
-void him_putupd();
 
 import { squares_diff, near } from './general.js';
 #include "SDL.h"
@@ -107,15 +104,9 @@ him_init(int x, int y, int c, int l)
     *(layers + foo) = SDL_CreateRGBSurface(SDL_SWSURFACE, 640, 480, 8, 0xff, 0xff00, 0xff0000, 0xff000000);
     assert(*(layers + foo));
 
-    if (SDL_MUSTLOCK((*(layers + foo))))
-      SDL_LockSurface(*(layers + foo));
-
     for (x = 0; x < 640; x++)
       for (y = 0; y < 480; y++)
         putpixel(*(layers + foo), x, y, 0xff);
-
-    if (SDL_MUSTLOCK((*(layers + foo))))
-      SDL_UnlockSurface(*(layers + foo));
   }
 
   if (c >= 16) {  /* set standard VGA 0-15 colors */
@@ -204,29 +195,17 @@ him_clrscr()
     {
       for (foo = 0; foo < sl; foo++)
         {
-          if (SDL_MUSTLOCK ((*(layers + foo))))
-            SDL_LockSurface (*(layers + foo));
-
           for (x = 0; x < 640; x++)
             for (y = 0; y < 480; y++)
               putpixel (*(layers + foo), x, y, 0xff);
-
-          if (SDL_MUSTLOCK ((*(layers + foo))))
-            SDL_UnlockSurface (*(layers + foo));
         }
     }
 
   if (ucln & 2)
     {
-      if (SDL_MUSTLOCK (scr))
-        SDL_LockSurface (scr);
-
       for (x = 0; x < 640; x++)
         for (y = 0; y < 480; y++)
           putpixel (scr, x, y, 0);
-
-      if (SDL_MUSTLOCK (scr))
-        SDL_UnlockSurface (scr);
 
       if (sc >= 16)  /* set standard VGA 0-15 colors */
         {
@@ -346,16 +325,10 @@ him_pixel (x, y, c, l)
   if ((ucln & 1) == 0)
     ucln |= 1;
 
-  if (SDL_MUSTLOCK ((*(layers + l))))
-    SDL_LockSurface (*(layers + l));
-
   if (c == -1)
     c = 0xff;
 
   putpixel (*(layers + l), x, y, c);
-
-  if (SDL_MUSTLOCK ((*(layers + l))))
-    SDL_UnlockSurface (*(layers + l));
 
   torep (x, y);
 
@@ -373,13 +346,7 @@ him_putpixel (x, y, c)
   if ((ucln & 2) == 0)
     ucln |= 2;
 
-  if (SDL_MUSTLOCK (scr))
-    SDL_LockSurface (scr);
-
   putpixel (scr, x, y, c);
-
-  if (SDL_MUSTLOCK (scr))
-    SDL_UnlockSurface (scr);
 
   return 0;
 }
@@ -401,13 +368,7 @@ him_getpixel (x, y, l)
         {
           SDL_UpdateRect (layers[foo], 0, 0, 0, 0);
 
-          if (SDL_MUSTLOCK ((*(layers + foo))))
-            SDL_LockSurface (*(layers + foo));
-
           baz = getpixel (*(layers + foo), x, y);
-
-          if (SDL_MUSTLOCK ((*(layers + foo))))
-            SDL_UnlockSurface (*(layers + foo));
 
           if (bar && (((foo == 1) && (baz == opt_col_wtr)) || (foo == 2)) && (rand () % 2))
             baz = bar;   /* these two lines (.-1,.) and the extern int opt_col_wtr make water and clouds 50% transparent in case of sun/moon/star behind */
@@ -426,13 +387,7 @@ him_getpixel (x, y, l)
         {
           SDL_UpdateRect (layers[foo], 0, 0, 0, 0);
 
-          if (SDL_MUSTLOCK ((*(layers + foo))))
-            SDL_LockSurface (*(layers + foo));
-
           bar += ((getpixel (*(layers + foo), x, y) == 0xff) ? 0 : ((2 ** (foo))));
-
-          if (SDL_MUSTLOCK ((*(layers + foo))))
-            SDL_UnlockSurface (*(layers + foo));
         }
 
       return (int) bar;
@@ -444,12 +399,6 @@ him_getpixel (x, y, l)
       SDL_UpdateRect (layers[l], 0, 0, 0, 0);
 
       foo = getpixel (*(layers + l), x, y);
-
-      if (SDL_MUSTLOCK ((*(layers + l))))
-        SDL_LockSurface (*(layers + l));
-
-      if (SDL_MUSTLOCK ((*(layers + l))))
-        SDL_UnlockSurface (*(layers + l));
 
       if (foo == 0xff)
         return -1;
@@ -722,9 +671,6 @@ him_repaint()
   if (rb == NULL)
     return;
 
-  if (SDL_MUSTLOCK(scr) && (SDL_LockSurface(scr) < 0))
-    return;
-
   while (rb != NULL) {
     struct reps *ra = rb;
     rb = rb->nxt;
@@ -732,9 +678,6 @@ him_repaint()
     putpixel(scr, ra->x, ra->y, him_getpixel(ra->x, ra->y, -1));
     free (ra);
   }
-
-  if (SDL_MUSTLOCK(scr))
-    SDL_UnlockSurface(scr);
 
   SDL_UpdateRect (scr, 0, 0, 0, 0);
 }
@@ -877,29 +820,6 @@ void
 putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
 {
   *((Uint8 *)surface->pixels + (surface->pitch * y) + x) = pixel;
-}
-
-
-void
-him_putlock()
-{
-  if (SDL_MUSTLOCK(scr))
-    SDL_LockSurface(scr);
-}
-
-
-void
-him_putulock()
-{
-  if (SDL_MUSTLOCK(scr))
-    SDL_UnlockSurface(scr);
-}
-
-
-void
-him_putupd()
-{
-  SDL_UpdateRect(scr, 0, 0, 0, 0);
 }
 
 
