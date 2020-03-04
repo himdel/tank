@@ -2,7 +2,7 @@
 #include "paint.h"
 #include "letters.h"
 #include "options.h"
-#include "general.h"
+import { distance, near } from './general.js';
 #include "water.h"
 
 

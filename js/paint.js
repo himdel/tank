@@ -52,7 +52,7 @@ void him_putlock();
 void him_putulock();
 void him_putupd();
 
-#include "general.h"
+import { squares_diff, near } from './general.js';
 #include "SDL.h"
 
 

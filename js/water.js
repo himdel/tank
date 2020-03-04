@@ -19,7 +19,6 @@ void wtr_hole (int, int);
 
 #include "paint.h"
 #include "options.h"
-#include "general.h"
 
 
 #ifndef PI

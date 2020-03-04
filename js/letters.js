@@ -10,7 +10,6 @@ void wrtltrzoom (int, int, int, int, int, int, int);
 void wrtwrd (int, int, char*, int, int, int);
 void wrtint (int, int, int, int, int, int);
 
-#include "general.h"
 #include "paint.h"
 #include "let_fnt.h"
 
