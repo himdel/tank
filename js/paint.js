@@ -578,9 +578,7 @@ him_circle (x, y, r, c, l)
 
   for (xx = (r / 4); xx < r; xx++)
     {
-      float yy;
-
-      yy = sqrt ((r * r) - ((r - xx) * (r - xx)));
+      float yy = squares_diff(r, r - xx);
 
       n += him_pixel (x - r + xx, (int) (y - yy), c, l);
       n += him_pixel (x - r + xx, (int) (y + yy), c, l);
@@ -620,8 +618,7 @@ him_ufullcircle (x, y, r, c, l, f)
 
   for (xx = (r / 4); xx < r; xx++)
     {
-      float yy;
-      yy = sqrt ((r * r) - ((r - xx) * (r - xx)));
+      float yy = squares_diff(r, r - xx);
 
       n += him_uline (x - r + xx, (int) (y - yy), x - r + xx, (int) (y + yy), c, l, f);
       n += him_uline (x + r - xx, (int) (y - yy), x + r - xx, (int) (y + yy), c, l, f);
@@ -661,8 +658,8 @@ him_ufullcircler (x, y, r1, r2, c, l, f)
   for (xx = 0; xx < r2; xx++)
     {
       int y1, y2;
-      y2 = (int) sqrt ((r2 * r2) - (xx * xx));
-      y1 = ((xx > r1) ? (0) : ((int) sqrt ((r1 * r1) - (xx * xx))));
+      y2 = (int) squares_diff(r2, xx);
+      y1 = ((xx > r1) ? (0) : ((int) squares_diff(r1, xx)));
 
       n += him_uline (x - xx, y - y1, x - xx, y - y2, c, l, f);
       n += him_uline (x - xx, y + y1, x - xx, y + y2, c, l, f);

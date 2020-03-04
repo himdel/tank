@@ -706,7 +706,7 @@ do_fire (p)
               if (him_getpixel ((int) (bx + vx), (int) (by + vy), 1) == opt_col_land)
                 {
                   int v;
-                  v = (int) (sqrt (sqr (vx) + sqr (vy)) * 20) + 2;
+                  v = (int) (distance(vx, vy) * 20) + 2;
                   addexplpnt ((int) (bx + vx), (int) (by + vy), v);
                   hsoo->hit = 2;
                 }

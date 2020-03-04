@@ -1,20 +1,8 @@
 // general routines for fonted
 
-double sqr (double);
-double near (int, int, int, int);
-int max (int, int);
-int min (int, int);
+export const distance = (dx, dy) => Math.sqrt((dx ** 2) + (dy ** 2));
 
-
-
-
-double
-sqr (n)
-    double n;
-{
-  return (n * n);
-}
-
+export const squares_diff = (dx, dy) => Math.sqrt((dx ** 2) - (dy ** 2));
 
 double
 near (x1, y1, x2, y2)
@@ -25,7 +13,7 @@ near (x1, y1, x2, y2)
   dx = abs (x2 - x1);
   dy = abs (y2 - y1);
 
-  return sqrt (sqr ((double) dx) + sqr ((double) dy));
+  return distance(dx, dy);
 }
 
 
