@@ -6,10 +6,9 @@ import { distance, near } from './general.js';
 #include "water.h"
 
 
-
-#define SCR_X 640
-#define SCR_Y 480
-#define SCR_C 256
+const SCR_X = 640;
+const SCR_Y = 480;
+const SCR_C = 256;
 
 
 struct playa

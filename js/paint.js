@@ -73,10 +73,6 @@ SDL_Surface *scr;
 int keyz[128];
 int ucln = 0;
 
-#ifdef TANK
-extern int opt_col_wtr;  /* for use in getpixel */
-#endif
-
 
 int
 him_init(int x, int y, int c, int l)
@@ -88,11 +84,6 @@ him_init(int x, int y, int c, int l)
     printf("SDL_Init: %s\n", SDL_GetError());
     return -1;
   }
-
-#ifdef TANK
-  SDL_WM_SetCaption ("tank", "tank");
-  SDL_WM_SetIcon (SDL_LoadBMP ("img/icon.bmp"), NULL);
-#endif    /* TANK */
 
   scr = SDL_SetVideoMode (x, y, 8, SDL_SWSURFACE);
   assert(scr);
@@ -418,10 +409,8 @@ him_getpixel (x, y, l)
           if (SDL_MUSTLOCK ((*(layers + foo))))
             SDL_UnlockSurface (*(layers + foo));
 
-#ifdef TANK
           if (bar && (((foo == 1) && (baz == opt_col_wtr)) || (foo == 2)) && (rand () % 2))
             baz = bar;   /* these two lines (.-1,.) and the extern int opt_col_wtr make water and clouds 50% transparent in case of sun/moon/star behind */
-#endif
 
           if (baz != 0xff)
             bar = baz;
