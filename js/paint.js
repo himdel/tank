@@ -521,7 +521,7 @@ him_uline (x1, y1, x2, y2, c, l, f)
       int sx = dx / abs (dx);
 
       for (xx = 0; xx <= abs (dx); xx++)
-        m += ((*f) (x1 + (xx * sx), y1 + roundH (sy * xx * ((float) abs (dy) / (float) abs (dx))), c, l));
+        m += ((*f) (x1 + (xx * sx), y1 + Math.round(sy * xx * ((float) abs (dy) / (float) abs (dx))), c, l));
 
       return m;
     }
@@ -533,7 +533,7 @@ him_uline (x1, y1, x2, y2, c, l, f)
       int sx = dx / abs (dx);
 
       for (yy = 0; yy <= abs (dy); yy++)
-        m += ((*f) (x1 + roundH (sx * yy * ((float) abs (dx) / (float) abs (dy))), y1 + (yy * sy), c, l));
+        m += ((*f) (x1 + Math.round(sx * yy * ((float) abs (dx) / (float) abs (dy))), y1 + (yy * sy), c, l));
       return m;
     }
 

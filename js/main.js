@@ -887,8 +887,8 @@ do_light (p)
 
                 if (!lt->h)
                   {
-                    fux->x = cur->x + abs (roundH (sin (a) * ((float) d))) * (((a > (PI / 2.0)) && (a < (3.0 * PI / 2.0))) ? (-1) : 1);
-                    fux->y = cur->y + abs (roundH (cos (a) * ((float) d))) * (((a > PI) || (a < 0)) ? (-1) : 1);
+                    fux->x = cur->x + abs (Math.round(sin (a) * ((float) d))) * (((a > (PI / 2.0)) && (a < (3.0 * PI / 2.0))) ? (-1) : 1);
+                    fux->y = cur->y + abs (Math.round(cos (a) * ((float) d))) * (((a > PI) || (a < 0)) ? (-1) : 1);
                   }
                 else
                   {

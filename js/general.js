@@ -1,18 +1,11 @@
 // general routines for fonted
 
-int roundH (double);
 double sqr (double);
 double near (int, int, int, int);
 int max (int, int);
 int min (int, int);
 
 
-int
-roundH (f)
-    float f;
-{
-  return ((f < (((int) f) + 0.5)) ? ((int) f) : (((int) f) + 1));
-}
 
 
 double
