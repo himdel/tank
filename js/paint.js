@@ -70,6 +70,89 @@ SDL_Surface *scr;
 int keyz[128];
 int ucln = 0;
 
+const VGA_COLORS = [
+  {
+    r: 0,
+    g: 0,
+    b: 0,
+  },
+  {
+    r: 0,
+    g: 0,
+    b: 168,
+  },
+  {
+    r: 0,
+    g: 168,
+    b: 0,
+  },
+  {
+    r: 0,
+    g: 168,
+    b: 168,
+  },
+  {
+    r: 168,
+    g: 0,
+    b: 0,
+  },
+  {
+    r: 168,
+    g: 0,
+    b: 168,
+  },
+  {
+    r: 168,
+    g: 84,
+    b: 0,
+  },
+  {
+    r: 168,
+    g: 168,
+    b: 168,
+  },
+  {
+    r: 84,
+    g: 84,
+    b: 84,
+  },
+  {
+    r: 84,
+    g: 84,
+    b: 252,
+  },
+  {
+    r: 84,
+    g: 252,
+    b: 84,
+  },
+  {
+    r: 84,
+    g: 252,
+    b: 252,
+  },
+  {
+    r: 252,
+    g: 84,
+    b: 84,
+  },
+  {
+    r: 252,
+    g: 84,
+    b: 252,
+  },
+  {
+    r: 252,
+    g: 252,
+    b: 84,
+  },
+  {
+    r: 252,
+    g: 252,
+    b: 252,
+  },
+];
+
 
 int
 him_init(int x, int y, int c, int l)
@@ -110,74 +193,8 @@ him_init(int x, int y, int c, int l)
   }
 
   if (c >= 16) {  /* set standard VGA 0-15 colors */
-    SDL_Color colors[16];
-
-    colors[0].r = 0;
-    colors[0].g = 0;
-    colors[0].b = 0;
-
-    colors[1].r = 0;
-    colors[1].g = 0;
-    colors[1].b = 168;
-
-    colors[2].r = 0;
-    colors[2].g = 168;
-    colors[2].b = 0;
-
-    colors[3].r = 0;
-    colors[3].g = 168;
-    colors[3].b = 168;
-
-    colors[4].r = 168;
-    colors[4].g = 0;
-    colors[4].b = 0;
-
-    colors[5].r = 168;
-    colors[5].g = 0;
-    colors[5].b = 168;
-
-    colors[6].r = 168;
-    colors[6].g = 84;
-    colors[6].b = 0;
-
-    colors[7].r = 168;
-    colors[7].g = 168;
-    colors[7].b = 168;
-
-    colors[8].r = 84;
-    colors[8].g = 84;
-    colors[8].b = 84;
-
-    colors[9].r = 84;
-    colors[9].g = 84;
-    colors[9].b = 252;
-
-    colors[10].r = 84;
-    colors[10].g = 252;
-    colors[10].b = 84;
-
-    colors[11].r = 84;
-    colors[11].g = 252;
-    colors[11].b = 252;
-
-    colors[12].r = 252;
-    colors[12].g = 84;
-    colors[12].b = 84;
-
-    colors[13].r = 252;
-    colors[13].g = 84;
-    colors[13].b = 252;
-
-    colors[14].r = 252;
-    colors[14].g = 252;
-    colors[14].b = 84;
-
-    colors[15].r = 252;
-    colors[15].g = 252;
-    colors[15].b = 252;
-
-    SDL_SetColors(scr, colors, 0, 16);
-    }
+    SDL_SetColors(scr, VGA_COLORS, 0, 16);
+  }
 
   printf("him_init ... [  %c[32mOK%c[0m  ]\n", 27, 27);
   printf("\nUsing SDL, licensed under LGPL and downloadable from http://www.libsdl.org/.\n\n");
@@ -208,75 +225,7 @@ him_clrscr()
           putpixel (scr, x, y, 0);
 
       if (sc >= 16)  /* set standard VGA 0-15 colors */
-        {
-          SDL_Color colors[16];
-
-          colors[0].r = 0;
-          colors[0].g = 0;
-          colors[0].b = 0;
-
-          colors[1].r = 0;
-          colors[1].g = 0;
-          colors[1].b = 168;
-
-          colors[2].r = 0;
-          colors[2].g = 168;
-          colors[2].b = 0;
-
-          colors[3].r = 0;
-          colors[3].g = 168;
-          colors[3].b = 168;
-
-          colors[4].r = 168;
-          colors[4].g = 0;
-          colors[4].b = 0;
-
-          colors[5].r = 168;
-          colors[5].g = 0;
-          colors[5].b = 168;
-
-          colors[6].r = 168;
-          colors[6].g = 84;
-          colors[6].b = 0;
-
-          colors[7].r = 168;
-          colors[7].g = 168;
-          colors[7].b = 168;
-
-          colors[8].r = 84;
-          colors[8].g = 84;
-          colors[8].b = 84;
-
-          colors[9].r = 84;
-          colors[9].g = 84;
-          colors[9].b = 252;
-
-          colors[10].r = 84;
-          colors[10].g = 252;
-          colors[10].b = 84;
-
-          colors[11].r = 84;
-          colors[11].g = 252;
-          colors[11].b = 252;
-
-          colors[12].r = 252;
-          colors[12].g = 84;
-          colors[12].b = 84;
-
-          colors[13].r = 252;
-          colors[13].g = 84;
-          colors[13].b = 252;
-
-          colors[14].r = 252;
-          colors[14].g = 252;
-          colors[14].b = 84;
-
-          colors[15].r = 252;
-          colors[15].g = 252;
-          colors[15].b = 252;
-
-          SDL_SetColors (scr, colors, 0, 16);
-        }
+        SDL_SetColors(scr, VGA_COLORS, 0, 16);
     }
 
   ucln = 0;
