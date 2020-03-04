@@ -6,14 +6,6 @@ import { distance, near } from './general.js';
 #include "water.h"
 
 
-#ifndef PI
-# ifdef M_PI
-#  define PI M_PI
-# else
-#  define PI 3.14
-# endif
-#endif
-
 
 #define SCR_X 640
 #define SCR_Y 480
@@ -329,28 +321,28 @@ paint_tanx (x1, a1, x2, a2)
 
   if (oa1 != a1)
     {
-      him_line (ox1 + (cos (oa1 * PI / 128) * 8), oy1 - (sin (oa1 * PI / 128) * 8), ox1 + (cos (oa1 * PI / 128) * 15), oy1 - (sin (oa1 * PI / 128) * 15), -1, 5);
-      him_line (x1 + (cos (a1 * PI / 128) * 8), y1 - (sin (a1 * PI / 128) * 8), x1 + (cos (a1 * PI / 128) * 15), y1 - (sin (a1 * PI / 128) * 15), opt_col_p1, 5);
+      him_line (ox1 + (cos (oa1 * Math.PI / 128) * 8), oy1 - (sin (oa1 * Math.PI / 128) * 8), ox1 + (cos (oa1 * Math.PI / 128) * 15), oy1 - (sin (oa1 * Math.PI / 128) * 15), -1, 5);
+      him_line (x1 + (cos (a1 * Math.PI / 128) * 8), y1 - (sin (a1 * Math.PI / 128) * 8), x1 + (cos (a1 * Math.PI / 128) * 15), y1 - (sin (a1 * Math.PI / 128) * 15), opt_col_p1, 5);
     }
 
   if (oa2 != a2)
     {
-      him_line (ox2 + (cos (oa2 * PI / 128) * 8), oy2 - (sin (oa2 * PI / 128) * 8), ox2 + (cos (oa2 * PI / 128) * 15), oy2 - (sin (oa2 * PI / 128) * 15), -1, 5);
-      him_line (x2 + (cos (a2 * PI / 128) * 8), y2 - (sin (a2 * PI / 128) * 8), x2 + (cos (a2 * PI / 128) * 15), y2 - (sin (a2 * PI / 128) * 15), opt_col_p2, 5);
+      him_line (ox2 + (cos (oa2 * Math.PI / 128) * 8), oy2 - (sin (oa2 * Math.PI / 128) * 8), ox2 + (cos (oa2 * Math.PI / 128) * 15), oy2 - (sin (oa2 * Math.PI / 128) * 15), -1, 5);
+      him_line (x2 + (cos (a2 * Math.PI / 128) * 8), y2 - (sin (a2 * Math.PI / 128) * 8), x2 + (cos (a2 * Math.PI / 128) * 15), y2 - (sin (a2 * Math.PI / 128) * 15), opt_col_p2, 5);
     }
 
   if ((ox1 != x1) || (oy1 != y1))
     {
       him_ufullcircle (x1, y1, 8, -1, 1, &px_hole);
       him_ufullcircle (x1, y1, 8, opt_col_p1, 5, &him_pixel);
-      him_line (x1 + (cos (a1 * PI / 128) * 8), y1 - (sin (a1 * PI / 128) * 8), x1 + (cos (a1 * PI / 128) * 16), y1 - (sin (a1 * PI / 128) * 16), opt_col_p1, 5);
+      him_line (x1 + (cos (a1 * Math.PI / 128) * 8), y1 - (sin (a1 * Math.PI / 128) * 8), x1 + (cos (a1 * Math.PI / 128) * 16), y1 - (sin (a1 * Math.PI / 128) * 16), opt_col_p1, 5);
     }
 
   if ((ox2 != x2) || (oy2 != y2))
     {
       him_ufullcircle (x2, y2, 8, -1, 1, &px_hole);
       him_ufullcircle (x2, y2, 8, opt_col_p2, 5, &him_pixel);
-      him_line (x2 + (cos (a2 * PI / 128) * 8), y2 - (sin (a2 * PI / 128) * 8), x2 + (cos (a2 * PI / 128) * 16), y2 - (sin (a2 * PI / 128) * 16), opt_col_p2, 5);
+      him_line (x2 + (cos (a2 * Math.PI / 128) * 8), y2 - (sin (a2 * Math.PI / 128) * 8), x2 + (cos (a2 * Math.PI / 128) * 16), y2 - (sin (a2 * Math.PI / 128) * 16), opt_col_p2, 5);
     }
 
   ox1 = x1; oy1 = y1; oa1 = a1;
@@ -576,11 +568,11 @@ fire (p, n)
 
   y = (getwl (p[n].x) ? Math.min(lmhs[p[n].x] - 8, getwl (p[n].x)) : (lmhs[p[n].x] - 8));
 
-  bx = (float) (p[n].x + (cos (p[n].a * PI / 128.0) * 16));
-  by = (float) (y - (sin (p[n].a * PI / 128.0) * 16));
+  bx = (float) (p[n].x + (cos (p[n].a * Math.PI / 128.0) * 16));
+  by = (float) (y - (sin (p[n].a * Math.PI / 128.0) * 16));
 
-  vx = cos (p[n].a * PI / 128.0) * (e / 256.0);
-  vy = - sin (p[n].a * PI / 128.0) * (e / 256.0);
+  vx = cos (p[n].a * Math.PI / 128.0) * (e / 256.0);
+  vy = - sin (p[n].a * Math.PI / 128.0) * (e / 256.0);
 
   bar = (struct shotp *) malloc (sizeof (struct shotp));
   bar->x = bx;
@@ -887,8 +879,8 @@ do_light (p)
 
                 if (!lt->h)
                   {
-                    fux->x = cur->x + Math.abs(Math.round(sin (a) * ((float) d))) * (((a > (PI / 2.0)) && (a < (3.0 * PI / 2.0))) ? (-1) : 1);
-                    fux->y = cur->y + Math.abs(Math.round(cos (a) * ((float) d))) * (((a > PI) || (a < 0)) ? (-1) : 1);
+                    fux->x = cur->x + Math.abs(Math.round(sin (a) * ((float) d))) * (((a > (Math.PI / 2.0)) && (a < (3.0 * Math.PI / 2.0))) ? (-1) : 1);
+                    fux->y = cur->y + Math.abs(Math.round(cos (a) * ((float) d))) * (((a > Math.PI) || (a < 0)) ? (-1) : 1);
                   }
                 else
                   {

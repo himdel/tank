@@ -21,10 +21,6 @@ void wtr_hole (int, int);
 #include "options.h"
 
 
-#ifndef PI
-#define PI M_PI
-#endif
-
 int gwh (int, int);
 int swh (int, int);
 void rwh (int, int);
