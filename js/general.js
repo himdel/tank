@@ -10,8 +10,8 @@ near (x1, y1, x2, y2)
 {
   int dx, dy;
 
-  dx = abs (x2 - x1);
-  dy = abs (y2 - y1);
+  dx = Math.abs(x2 - x1);
+  dy = Math.abs(y2 - y1);
 
   return distance(dx, dy);
 }

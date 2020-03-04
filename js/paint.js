@@ -503,37 +503,37 @@ him_uline (x1, y1, x2, y2, c, l, f)
       return m;
     }
 
-  if (abs(dx) == abs(dy))
+  if (Math.abs(dx) == Math.abs(dy))
     {
-      int sy = dy / abs (dy);
-      int sx = dx / abs (dx);
+      int sy = dy / Math.abs(dy);
+      int sx = dx / Math.abs(dx);
 
-      for (dx = 0; dx <= abs (dy); dx++)
+      for (dx = 0; dx <= Math.abs(dy); dx++)
         m += ((*f) (x1 + (dx * sx), y1 + (dx * sy), c, l));
 
       return m;
     }
 
-  if (abs(dx) > abs(dy))
+  if (Math.abs(dx) > Math.abs(dy))
     {
       int xx;
-      int sy = dy / abs (dy);
-      int sx = dx / abs (dx);
+      int sy = dy / Math.abs(dy);
+      int sx = dx / Math.abs(dx);
 
-      for (xx = 0; xx <= abs (dx); xx++)
-        m += ((*f) (x1 + (xx * sx), y1 + Math.round(sy * xx * ((float) abs (dy) / (float) abs (dx))), c, l));
+      for (xx = 0; xx <= Math.abs(dx); xx++)
+        m += ((*f) (x1 + (xx * sx), y1 + Math.round(sy * xx * ((float) Math.abs(dy) / (float) Math.abs(dx))), c, l));
 
       return m;
     }
 
-  if (abs(dy) > abs(dx))
+  if (Math.abs(dy) > Math.abs(dx))
     {
       int yy;
-      int sy = dy / abs (dy);
-      int sx = dx / abs (dx);
+      int sy = dy / Math.abs(dy);
+      int sx = dx / Math.abs(dx);
 
-      for (yy = 0; yy <= abs (dy); yy++)
-        m += ((*f) (x1 + Math.round(sx * yy * ((float) abs (dx) / (float) abs (dy))), y1 + (yy * sy), c, l));
+      for (yy = 0; yy <= Math.abs(dy); yy++)
+        m += ((*f) (x1 + Math.round(sx * yy * ((float) Math.abs(dx) / (float) Math.abs(dy))), y1 + (yy * sy), c, l));
       return m;
     }
 

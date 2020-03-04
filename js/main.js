@@ -235,7 +235,7 @@ paint_stars (n)
       int x, y;
       foo = (rand () % 97) - 48;  /* phase (-48..48) */
       him_ufullcircle (x = (rand () % SCR_X), y = (rand () % 240), 24, opt_col_moon, 0, &px_moon);
-      him_ufullcircle (x - (24 * ((foo < 1) ? 1 : -1)), y, abs (foo), 0, 0, &him_pixel);
+      him_ufullcircle (x - (24 * ((foo < 1) ? 1 : -1)), y, Math.abs(foo), 0, 0, &him_pixel);
     }
 
   for (foo = 0; foo < n; foo++)
@@ -807,7 +807,7 @@ do_expl (p)
         {
           struct expl *exxxp;
 
-          if ((abs (exxp->x - p[0].x) < 24) || (abs (exxp->x - p[1].x) < 24))
+          if ((Math.abs(exxp->x - p[0].x) < 24) || (Math.abs(exxp->x - p[1].x) < 24))
             {
               paint_tanx (p[0].x, p[0].a, p[1].x, p[1].a);
               show_arrows (p[0].x, p[1].x);
@@ -875,7 +875,7 @@ do_light (p)
                 py = (getwl (px) ? Math.min(lmhs[px] - 8, getwl (px)) : (lmhs[px] - 8));
 
                 d = near (cur->x, cur->y, px, py);
-                a = acos (((float) (abs (cur->y - py) * ((cur->x > px) ? (-1) : (1)))) / ((float) d));
+                a = acos (((float) (Math.abs(cur->y - py) * ((cur->x > px) ? (-1) : (1)))) / ((float) d));
 
                 a += (((float) ((rand () % 101) - 50)) / 200.0) * (1.0 + (16.0 / (float) (d + 1)));
                 if (d < 32)
@@ -887,8 +887,8 @@ do_light (p)
 
                 if (!lt->h)
                   {
-                    fux->x = cur->x + abs (Math.round(sin (a) * ((float) d))) * (((a > (PI / 2.0)) && (a < (3.0 * PI / 2.0))) ? (-1) : 1);
-                    fux->y = cur->y + abs (Math.round(cos (a) * ((float) d))) * (((a > PI) || (a < 0)) ? (-1) : 1);
+                    fux->x = cur->x + Math.abs(Math.round(sin (a) * ((float) d))) * (((a > (PI / 2.0)) && (a < (3.0 * PI / 2.0))) ? (-1) : 1);
+                    fux->y = cur->y + Math.abs(Math.round(cos (a) * ((float) d))) * (((a > PI) || (a < 0)) ? (-1) : 1);
                   }
                 else
                   {
