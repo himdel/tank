@@ -318,8 +318,8 @@ paint_tanx (x1, a1, x2, a2)
   static int ox1 = ~0, oa1 = ~0, ox2 = ~0, oa2 = ~0, oy1, oy2;
   int y1, y2;
 
-  y1 = (getwl (x1) ? min(lmhs[x1] - 8, getwl (x1)) : (lmhs[x1] - 8));
-  y2 = (getwl (x2) ? min(lmhs[x2] - 8, getwl (x2)) : (lmhs[x2] - 8));
+  y1 = (getwl (x1) ? Math.min(lmhs[x1] - 8, getwl (x1)) : (lmhs[x1] - 8));
+  y2 = (getwl (x2) ? Math.min(lmhs[x2] - 8, getwl (x2)) : (lmhs[x2] - 8));
 
   if ((ox1 != ~0) && ((ox1 != x1) || (oy1 != y1)))
     him_box (ox1 - 32, oy1 - 32, ox1 + 32, oy1 + 32, -1, 5);
@@ -571,10 +571,10 @@ fire (p, n)
   struct shootp *foo;
   struct shotp *bar;
 
-  e = min (p[n].e, p[n].p);
+  e = Math.min(p[n].e, p[n].p);
   p[n].e -= e;
 
-  y = (getwl (p[n].x) ? min (lmhs[p[n].x] - 8, getwl (p[n].x)) : (lmhs[p[n].x] - 8));
+  y = (getwl (p[n].x) ? Math.min(lmhs[p[n].x] - 8, getwl (p[n].x)) : (lmhs[p[n].x] - 8));
 
   bx = (float) (p[n].x + (cos (p[n].a * PI / 128.0) * 16));
   by = (float) (y - (sin (p[n].a * PI / 128.0) * 16));
@@ -872,7 +872,7 @@ do_light (p)
                   lt->ls = fux;
 
                 px = p[lt->w].x;
-                py = (getwl (px) ? min(lmhs[px] - 8, getwl (px)) : (lmhs[px] - 8));
+                py = (getwl (px) ? Math.min(lmhs[px] - 8, getwl (px)) : (lmhs[px] - 8));
 
                 d = near (cur->x, cur->y, px, py);
                 a = acos (((float) (abs (cur->y - py) * ((cur->x > px) ? (-1) : (1)))) / ((float) d));

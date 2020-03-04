@@ -15,19 +15,3 @@ near (x1, y1, x2, y2)
 
   return distance(dx, dy);
 }
-
-
-int
-max (a, b)
-    int a, b;
-{
-  return ((a > b) ? a : b);
-}
-
-
-int
-min (a, b)
-    int a, b;
-{
-  return ((a < b) ? a : b);
-}

@@ -161,7 +161,7 @@ water_land (lmhs)
     }
 
 
-/* find valleys and foreach: water level = ((3 * (min(hp0, hp1) - lp)) / 4) */
+/* find valleys and foreach: water level = ((3 * (Math.min(hp0, hp1) - lp)) / 4) */
 
   lpt = lpb;
   hpt = hpb;
@@ -195,7 +195,7 @@ water_land (lmhs)
           h1x = 639;
         }
 
-      l = (3 * (lpt->y - max (h0, h1))) / 4;
+      l = (3 * (lpt->y - Math.max(h0, h1))) / 4;
       if (opt_v)
         printf ("valley: center (%d, %d); level = %d; h0 (%d, %d); h1 (%d, %d)\n", lpt->x, lpt->y, l, h0x, h0, h1x,h1);
       l = lpt->y - l;
